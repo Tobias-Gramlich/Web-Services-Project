@@ -20,8 +20,10 @@ app.use("/users", UserRouter);
 
 //* Database Synchronization and API Port Setup
 database.sequelize.sync().then(() => {
-    app.listen(process.env.PORT || 3001, () => {
-        console.log(`Server Running on Port ${process.env.PORT}`);
+    app.listen(process.env.BENUTZERVERWALTUNG_PORT || 3001, () => {
+        console.log(`-----------------------------------------------------`);
+        console.log(`-----User Management Server running on Port ${process.env.BENUTZERVERWALTUNG_PORT}-----`);
+        console.log(`-----------------------------------------------------`);
     });
 }).catch((error) => {
     console.log(error);
