@@ -1,0 +1,63 @@
+services:
+  db:
+    image: mariadb:11
+    container_name: web-services-db
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - web-services-db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-p${DB_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  benutzerverwaltung:
+    build:
+      context: ./Benutzerverwaltung-Web-Service
+      dockerfile: Dockerfile
+    container_name: benutzerverwaltung
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+
+    env_file:
+      - ./.env
+
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      
+    ports:
+      - "3001:3001"
+
+  matchmaking:
+    build:
+      context: ./Matchmaking-Web-Service
+      dockerfile: Dockerfile
+    container_name: matchmaking
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3002:3002"
+
+volumes:
+  web-services-db_data:
