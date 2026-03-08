@@ -65,5 +65,32 @@ services:
       - ${MATCHMAKING_DOCKER_PORT}
       - ${MATCHMAKING_DOCKER_WS_PORT}
 
+  color-api:
+    build: 
+      context: ./color-api_src
+      dockerfile: Dockerfile
+    container_name: color-api
+    restart: unless-stopped
+    depends_on:
+      web-services-db:
+        condition: service_healthy
+    
+    env_file:
+      - ./.env
+
+    environment:
+      APP_PORT: ${COLOR_API_PORT}
+      DB_HOST: web-services-db
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_POOL_SIZE: 5
+      DB_POOL_CREATE_RETRIES: 20
+
+    ports:
+      - ${COLOR_API_DOCKER_PORT}
+
+
 volumes:
   web-services-db_data:
