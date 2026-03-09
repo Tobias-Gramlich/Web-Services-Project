@@ -1,6 +1,6 @@
 const validateEmail = (email) => {
     //* Regex for valid EMail Format
-    const regexEmail = new RegExp("^[A-Za-zÄÖÜäöüß0-9]+@(?:[A-Za-zÄÖÜäöüß]+\.)+[A-Za-zÄÖÜäöüß]+$");
+    const regexEmail = new RegExp("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$");
 
     //* Max and Min Length
     const maxLength = 64;
