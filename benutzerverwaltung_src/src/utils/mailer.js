@@ -31,6 +31,9 @@ function getTransporter() {
       user: SMTP_USER,
       pass: SMTP_PASSWORD,
     },
+    tls: {
+      rejectUnauthorized: false,
+    },
   });
 
   //* Return Cached Transporter
