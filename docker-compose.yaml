@@ -97,11 +97,12 @@ services:
       context: ./skyjo_src
       dockerfile: Dockerfile
     restart: on-failure
-
+    container_name: skyjo-logic
     env_file:
       - ./.env
 
     environment:
+      QUARKUS_HTTP_PORT: 1023
       DB_HOST: web-services-db
       DB_PORT: ${DB_PORT}
       DB_NAME: ${SKYJO_DATABASE}
