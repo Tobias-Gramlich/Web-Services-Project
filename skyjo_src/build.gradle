@@ -1,0 +1,119 @@
+// build.gradle (Groovy)
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        // Flyway DB module that supports MariaDB (via MySQL plugin)
+        classpath "org.flywaydb:flyway-mysql:12.0.1"
+        // JDBC driver for Flyway Gradle tasks
+        classpath "org.mariadb.jdbc:mariadb-java-client:3.5.3"
+    }
+}
+
+plugins {
+    id 'java'
+    id 'io.quarkus'
+    id "org.flywaydb.flyway" version "12.0.1"
+    id "nu.studer.jooq" version "10.2"
+    id 'org.jetbrains.kotlin.jvm' version "2.0.21"
+}
+
+group = 'org.acme'
+version = '1.0.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+    implementation 'io.quarkus:quarkus-arc'
+    implementation 'io.quarkus:quarkus-jdbc-mariadb'
+    implementation 'io.quarkus:quarkus-rest-jackson'
+    implementation 'io.quarkus:quarkus-flyway'
+    implementation 'io.quarkus:quarkus-smallrye-openapi'
+    implementation 'io.quarkus:quarkus-devui'
+
+    // Optional
+    implementation 'io.quarkus:quarkus-hibernate-orm'
+    implementation 'io.quarkus:quarkus-hibernate-orm-panache'
+    implementation 'org.flywaydb:flyway-mysql'
+
+    // jOOQ runtime integration for Quarkus
+    implementation 'io.quarkiverse.jooq:quarkus-jooq:2.1.0'
+
+    testImplementation 'io.quarkus:quarkus-junit'
+
+    // jOOQ code generation needs the JDBC driver on the generator classpath
+    jooqGenerator "org.mariadb.jdbc:mariadb-java-client:3.5.3"
+
+    // Lombok
+    compileOnly "org.projectlombok:lombok:1.18.32"
+    annotationProcessor "org.projectlombok:lombok:1.18.32"
+
+    testCompileOnly "org.projectlombok:lombok:1.18.32"
+    testAnnotationProcessor "org.projectlombok:lombok:1.18.32"
+}
+
+// ---------- jOOQ code generation ----------
+jooq {
+    version = '3.19.24'
+    configurations {
+        main {
+            generationTool {
+                jdbc {
+                    driver = "org.mariadb.jdbc.Driver"
+                    url = "jdbc:mariadb://localhost:3306/skyjo"
+                    user = "${jooqDBuser}"
+                    password = "${jooqDBpassword}"
+                }
+                generator {
+                    database {
+                        name = "org.jooq.meta.mariadb.MariaDBDatabase"
+                        inputSchema = "skyjo"
+                    }
+                    target {
+                        packageName = "infrastructure.jooq.generated"
+                        directory = "$buildDir/generated/sources/jooq"
+                    }
+                }
+            }
+        }
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir "$buildDir/generated/sources/jooq"
+        }
+    }
+}
+
+tasks.named("compileJava") {
+    dependsOn(tasks.named("generateJooq"))
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
+}
+
+tasks.named("compileTestJava") {
+    options.encoding = 'UTF-8'
+}
+
+// ---------- Flyway ----------
+flyway {
+    url = "jdbc:mariadb://localhost:3306/skyjo"
+    user = "${jooqDBuser}"
+    password = "${jooqDBpassword}"
+    locations = ["filesystem:src/main/resources/db/migration"]
+}
+
+// ---------- Java toolchain ----------
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}

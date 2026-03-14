@@ -1,0 +1,151 @@
+@startuml
+'https://plantuml.com/class-diagram
+rectangle domain {
+class Action {
+    - game: Game
+    - actionType: ActionType
+     - playFieldBefore: PlayField
+    - playFieldAfter: PlayField
+    - drawPile: boolean
+    - newCardInField: boolean
+    - Card: Card
+    - player: Player
+    - lastMove: boolean
+}
+enum ActionType {
+    SETUP
+    DRAW_FROM_DRAW_PILE
+    DRAW_FROM_DISCARD_PILE
+}
+class Card {
+    - value: int <<final>>
+    - revealed: boolean
+
+    + Card(int value): Card
+    + getValue(): int
+    + reveal(): void
+}
+
+class Game {
+    - id: Long <<final>>
+    - players: List<Player> <<final>>
+    - currentPlayerIndex: int
+    - phase: Status
+    - drawPile: Pile
+    - discardPile: Pile
+    - round: int
+
+    + getCurrentPlayer(): Player
+    + changeCurrentPlayer(): void
+    + drawFromDrawPile(): Card
+    + drawFromDiscardPile(): Card
+    + setPhase(Turnphase phase): void
+}
+
+Exception IllegalMoveException {
+    + public IllegalMoveException(String Message): IllegalMoveException
+}
+
+class Pile {
+    - stack: Stack<Card>
+    - revealed: boolean <<final>>
+}
+
+Enum Status {
+    SETUP,
+    ROUNDS,
+    END,
+    INACTIVE
+}
+
+class Player {
+    - id: Long
+    - playField: PlayField
+    - points: Long
+    - lastMoveDone: boolean
+}
+
+class PlayField {
+    - List<Card>
+
+    + PlayField(List<Card>)
+    + switchCard(Card card, int x, int y): Card
+    + calculateSum(): int
+    + countRevealedCard(): int
+
+    - calculatePosition(int x, int y): int
+    - calculateCoordinates(int z): Pair<int x,int y>
+    }
+}
+rectangle application {
+class MoveValidator {
+    + validateGame(Action action);
+}
+
+class GameUpsetter {
+'Ich will einen Boolean, wenn alles gut gegangen und fertig erstellt ist >:('
+    + setupGame(List<Player>): boolean
+}
+
+interface Calculator {
+    + calculatePointsFromRound(): List<Long>
+    + calculateEndPoints(): List<Long>
+}
+}
+rectangle infrastructure.persistence {
+    rectangle entities {
+        class ActionEntity {
+            - actionId: Long
+            - game: GameEntity
+            - actorId: String
+            - clientActionId: Long
+            - type: String
+            - payloadJson: String
+            - createdAt: LocalDateTime
+
+            + ActionEntity(GameEntity game, String actorId, Long clientActionId, String type, String payloadJson) : ActionEntity
+        }
+
+        class GameEntity {
+            - id: Long
+            - gameStatus: String
+            - currentPlayerId: Long
+            - createdAt: LocalDateTime
+            - updatedAt: LocalDateTime
+        }
+
+        class GameStateEntity {
+            - gameId: Long
+            - stateJson: String
+            - game: GameEntity
+        }
+    }
+    rectangle repository {
+        interface GameRepository {
+            + insertNewGame(String GameStatus, Long CurrentPlayerId): void
+            + loadGame(Long gameId): PanacheEntityBase
+            + loadSnapshot(Long gameId): PanacheEntityBase
+            + loadActions(Long gameId): List<ActionEntity>
+            + updateSnapshot(Long gameId, JsonObject jsonObject): void
+            + appendAction(GameEntity game, String actorId, Long clientActionId, String type, String payloadJson): void
+        }
+
+        class JPAGameRepository {}
+    }
+    rectangle mapper {
+        interface DomainEntityMapper {
+            + toGameEntity(Game game): GameEntity
+            + toGameStateEntity(): GameStateEntity
+            + toActionEntity(Action action): ActionEntity
+        }
+
+        interface EntityDomainMapper {
+           + toGame(Long gameId): Game
+        }
+    }
+}
+
+rectangle api {
+
+}
+@enduml
