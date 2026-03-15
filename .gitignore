@@ -43,3 +43,7 @@ Thumbs.db
 
 # Git
 .git/
+
+# Gradle
+/skyjo_src/gradle.properties
+!/skyjo_src/gradle.properties.example
