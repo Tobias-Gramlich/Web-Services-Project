@@ -36,6 +36,7 @@ dependencies {
     implementation 'io.quarkus:quarkus-flyway'
     implementation 'io.quarkus:quarkus-smallrye-openapi'
     implementation 'io.quarkus:quarkus-devui'
+    implementation 'io.quarkus:quarkus-websockets-next'
 
     // Optional
     implementation 'io.quarkus:quarkus-hibernate-orm'

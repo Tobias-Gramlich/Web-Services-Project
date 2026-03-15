@@ -8,6 +8,6 @@ public class TestPoint {
 
     @GET
     public String test() {
-        return "ok";
+        return "Test";
     }
 }
