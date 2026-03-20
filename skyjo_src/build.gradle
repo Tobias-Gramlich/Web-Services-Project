@@ -17,7 +17,7 @@ plugins {
     id 'io.quarkus'
     id "org.flywaydb.flyway" version "12.0.1"
     id "nu.studer.jooq" version "10.2"
-    id 'org.jetbrains.kotlin.jvm' version "2.1.20"
+    id 'org.jetbrains.kotlin.jvm' version "2.0.21"
 }
 
 group = 'org.acme'
@@ -36,6 +36,8 @@ dependencies {
     implementation 'io.quarkus:quarkus-flyway'
     implementation 'io.quarkus:quarkus-smallrye-openapi'
     implementation 'io.quarkus:quarkus-devui'
+    implementation 'io.quarkus:quarkus-websockets-next'
+    implementation 'io.quarkus:quarkus-websockets-next'
 
     // Optional
     implementation 'io.quarkus:quarkus-hibernate-orm'
