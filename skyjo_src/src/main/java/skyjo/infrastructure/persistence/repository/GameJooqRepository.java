@@ -107,15 +107,7 @@ public class GameJooqRepository implements IGameRepository {
                     .set(PLAYER.LAST_MOVE, (byte) (player.getLastMoveDone() ? 1 : 0))
                     .execute();
         } else {
-            dsl.update(PLAYER)
-                    .set(PLAYER.POINTS, ULong.valueOf(player.getPoints()))
-                    .set(PLAYER.PLAYER_INDEX, UInteger.valueOf(playerIndex))
-                    .set(PLAYER.IS_VERIFIED, (byte) 0)
-                    .set(PLAYER.PLAYFIELD, mapper.writeValueAsBytes(player.getPlayField()))
-                    .set(PLAYER.NUMBER_OF_MOVES, ULong.valueOf(0))
-                    .set(PLAYER.LAST_MOVE, (byte) (player.getLastMoveDone() ? 1 : 0))
-                    .where(PLAYER.ID.eq(ULong.valueOf(player.getId())))
-                    .execute();
+            updatePlayer(player, playerIndex);
         }
     }
 
@@ -123,6 +115,31 @@ public class GameJooqRepository implements IGameRepository {
     public void updateGameSnapshot(Game game) throws JsonProcessingException {
         // create Snapshot-JSon
         dsl.update(GAME).set(GAME.SNAPSHOT, mapper.writeValueAsBytes(game)).where(GAME.ID.eq(ULong.valueOf(game.getId()))).execute();
+    }
+
+    @Override
+    public void updatePlayer(Player player) throws JsonProcessingException {
+        dsl.update(PLAYER)
+                .set(PLAYER.POINTS, ULong.valueOf(player.getPoints()))
+                .set(PLAYER.IS_VERIFIED, (byte) 0)
+                .set(PLAYER.PLAYFIELD, mapper.writeValueAsBytes(player.getPlayField()))
+                .set(PLAYER.NUMBER_OF_MOVES, ULong.valueOf(0))
+                .set(PLAYER.LAST_MOVE, (byte) (player.getLastMoveDone() ? 1 : 0))
+                .where(PLAYER.ID.eq(ULong.valueOf(player.getId())))
+                .execute();
+    }
+
+    @Override
+    public void updatePlayer(Player player, Integer playerIndex) throws JsonProcessingException {
+        dsl.update(PLAYER)
+                .set(PLAYER.POINTS, ULong.valueOf(player.getPoints()))
+                .set(PLAYER.PLAYER_INDEX, UInteger.valueOf(playerIndex))
+                .set(PLAYER.IS_VERIFIED, (byte) 0)
+                .set(PLAYER.PLAYFIELD, mapper.writeValueAsBytes(player.getPlayField()))
+                .set(PLAYER.NUMBER_OF_MOVES, ULong.valueOf(0))
+                .set(PLAYER.LAST_MOVE, (byte) (player.getLastMoveDone() ? 1 : 0))
+                .where(PLAYER.ID.eq(ULong.valueOf(player.getId())))
+                .execute();
     }
 
 

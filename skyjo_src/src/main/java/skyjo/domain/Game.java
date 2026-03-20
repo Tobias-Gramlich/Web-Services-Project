@@ -3,11 +3,10 @@ package skyjo.domain;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.bytebuddy.pool.TypePool;
 import skyjo.api.dto.ActionRequest;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 @Getter
 @NoArgsConstructor(force = true)
@@ -34,6 +33,20 @@ public class Game {
         this.phase = Status.SETUP;
     }
 
+    public boolean isLastMove(Long playerId) {
+        // check if current player is actually playing
+        if (!playerId.equals(getCurrentPlayer().getId())) {
+            throw new IllegalArgumentException("Player id is not the same as current player.");
+        }
+        // check if they already played their last move
+        if(getCurrentPlayer().getLastMoveDone()) {
+            throw new IllegalArgumentException("Player last move is already done");
+        }
+        // last move if player before has done their last move
+        assert players != null;
+        return players.get(currentPlayerIndex -1).getLastMoveDone();
+    }
+
     public Player getCurrentPlayer(){
         return players.get(currentPlayerIndex);
     }
@@ -49,6 +62,9 @@ public class Game {
     }
 
     public Card drawFromDrawPile(){
+        if (drawPile.getStack().isEmpty()) {
+            reshufflePiles();
+        }
         return drawPile.draw();
     }
 
@@ -65,7 +81,7 @@ public class Game {
     }
 
     public void setCurrentPlayer(Player player) {
-        for (int i = 0; i < players.size(); i++) {
+        for (int i = 0; i < Objects.requireNonNull(players).size(); i++) {
             if (players.get(i).getId().equals(player.getId())) {
                 this.currentPlayerIndex = i;
                 return;
@@ -100,5 +116,18 @@ public class Game {
                 player,
                 this
         );
+    }
+
+    // Map<Long, Long> mit <PlayerId, PointsFromRound>
+    public void addPoints(Map<Long, Long> points) {
+        for (Player player : players) {
+            player.addPoints(points.get(player.getId()));
+        }
+    }
+
+    public boolean checkIfEnd() {
+        assert players != null;
+        return players.stream()
+                .anyMatch(player -> player.getPoints() == 100);
     }
 }
