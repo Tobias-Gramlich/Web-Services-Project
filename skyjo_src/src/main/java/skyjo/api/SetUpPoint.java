@@ -29,6 +29,7 @@ public class SetUpPoint {
     public GameResponse setUpGame(List<Long> ids) throws JsonProcessingException {
         LOG.info("SetUpGame called");
         Game game = gameUpsetter.setUpGame(ids);
+        System.out.println("Game started");
         return GameResponseMapper.toResponse(game);
     }
 }
