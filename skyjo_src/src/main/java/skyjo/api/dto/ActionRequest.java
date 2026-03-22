@@ -8,6 +8,7 @@ import skyjo.domain.ActionType;
 @NoArgsConstructor // Required for Jackson to prevent the errors we saw earlier
 public class ActionRequest {
     private long gameId;
+    // access token for user authentication
     private String playerToken;
 
     // The type of action (e.g., DRAW_FROM_PILE, DISCARD, REVEAL)

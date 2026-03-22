@@ -42,51 +42,33 @@ public class Move {
         LOG.info("Validating move request");
 
         Long playerId;
-
-        // 1. Nutzer validieren
-        ObjectMapper mapper;
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-
-            // Format API Message
-            String message = """
-                    {
-                        "accessToken": "%s"
-                    }
-                    """.formatted(request.getPlayerToken());
-
-            // Build API Call
-            HttpRequest httpRequest = HttpRequest.newBuilder()
-                    .uri(URI.create("http://benutzerverwaltung:3001/Users/auth"))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(message))
-                    .build();
-
-            // Send API Call
-            HttpResponse<String> httpResponse = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-
-            // Map Response to JSON
-            mapper = new ObjectMapper();
-            JsonNode jsonResponse = mapper.readTree(httpResponse.body());
-
-            // Check if API Call was successful
-            boolean success = jsonResponse.get("success").asBoolean();
-            if (!success) {
-                return Response.status(Response.Status.NOT_FOUND)
+        ObjectMapper mapper = new ObjectMapper();
+        try (Response authResponse = GameConnectionRegistry.authenticate(request.getPlayerToken())) {
+            if (authResponse == null || authResponse.getStatus() != Response.Status.OK.getStatusCode()) {
+                return Response.status(Response.Status.UNAUTHORIZED)
                         .type(MediaType.APPLICATION_JSON)
-                        .entity(jsonResponse.asText())
+                        .entity(Map.of("error", "Authentication failed"))
                         .build();
             }
 
-            // Get playerID
-            playerId = (long) jsonResponse.get("userId").asInt();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Response.status(Response.Status.NOT_FOUND)
-                    .type(MediaType.APPLICATION_JSON)
-                    .entity(Map.of("error", "Authentication failed"))
-                    .build();
+            JsonNode jsonResponse = mapper.readTree(authResponse.getEntity().toString());
 
+            if (!jsonResponse.get("success").asBoolean()) {
+                return Response.status(Response.Status.UNAUTHORIZED)
+                        .type(MediaType.APPLICATION_JSON)
+                        .entity(Map.of("error", "Authentication failed"))
+                        .build();
+            }
+
+            playerId = jsonResponse.get("userId").asLong();
+            LOG.info("Player Id: " + playerId);
+
+        } catch (JsonProcessingException e) {
+            LOG.error("Failed to parse authentication response", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(Map.of("error", "Authentication response parsing failed"))
+                    .build();
         }
 
         // 2. Das Spiel aus dem Repository laden
@@ -134,7 +116,7 @@ public class Move {
         // Spiel beendet
         if (a.getGame().getPhase() == Status.END) {
             // Punktzahlen berechnen
-            Map<Long, Long> points= Calculator.calculatePointsFromRound(game);
+            Map<Long, Long> points= calculatePointsFromRound(game);
 
             // Punktzahlen zu bestehenden Punkten aus vorherigen Runden addieren
             game.addPoints(points);
@@ -144,6 +126,7 @@ public class Move {
                 // get end points to return to UI
                 Map<Long, Long> endPoints = Calculator.calculateEndPoints(game);
                 //TODO  return end points through web socket
+
             }
             // TODO  update end round
 

@@ -22,6 +22,10 @@ public class GameUpsetter {
             throw new IllegalArgumentException("A game requires at least 2 players.");
         }
 
+        if (players.size() > 4) {
+            throw new IllegalArgumentException("A game requires at most 4 players.");
+        }
+
         // Initialize draw pile
         Pile drawPile = Pile.createDrawPile();
 
@@ -47,8 +51,6 @@ public class GameUpsetter {
         // Create game object
         Game game = new Game(playersInGame, drawPile, discardPile);
         game.setPhase(Status.SETUP);
-
-        // TODO: Reveal two cards for each player and determine who starts.
 
         //  Reveal two random cards for each player
         Random random = new Random();
