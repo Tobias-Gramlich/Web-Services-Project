@@ -1,4 +1,5 @@
 const { Rooms } = require("../models");
+const axios = require('axios');
 const {
   getStore,
   safeSend,
@@ -55,13 +56,31 @@ async function PrivateStart(ws, payload = {}) {
     return;
   }
 
+  const arrayOfPlayers = [
+    dbRoom.host,
+    dbRoom.player2,
+    dbRoom.player3,
+    dbRoom.player4
+  ].filter(player => player != null);
+  
+  let response;
+
+  try {
+    response = await axios.post(process.env.SKYJO_LOGIC_ROUTE, arrayOfPlayers);
+    if(response.data.error){
+      return;
+    }
+  } 
+  catch (err){
+    return;
+  }
+
   dbRoom.state = "started";
   await dbRoom.save();
 
-  const snapshot = dbRoomSnapshot(dbRoom);
   broadcastToRoom(store, roomCode, {
     type: "private.started",
-    payload: { roomCode, room: snapshot },
+    payload: response.data,
   });
 }
 
