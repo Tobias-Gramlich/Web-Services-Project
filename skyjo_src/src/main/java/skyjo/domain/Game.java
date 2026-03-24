@@ -44,7 +44,7 @@ public class Game {
         }
         // last move if player before has done their last move
         assert players != null;
-        return players.get(currentPlayerIndex -1).getLastMoveDone();
+        return players.get(Math.floorMod(currentPlayerIndex - 1, players.size())).getLastMoveDone();
     }
 
     public Player getCurrentPlayer(){
@@ -102,6 +102,8 @@ public class Game {
         }
         int x = request.getCardIndex() / 4;
         int y = request.getCardIndex() % 4;
+        System.out.println(x);
+        System.out.println(y);
         assert discardPile != null;
         discardPile.layCard(player.getPlayField().switchCard(card, x, y));
         PlayField after = player.getPlayField();

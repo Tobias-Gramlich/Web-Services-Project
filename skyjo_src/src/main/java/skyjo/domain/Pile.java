@@ -51,18 +51,17 @@ public class Pile {
     }
 
     public Card draw(){
-        Card drawnCard = stack.pop();
+        return stack.pop();
+    }
+
+    public Card showFristCard(){
+        Card drawnCard = stack.peek();
         drawnCard.reveal();
         return drawnCard;
     }
 
-    public Card showFristCard(){
-        if (revealed){
-            return stack.peek();
-        }
-        else {
-            throw new IllegalMoveException("Cannot look at unrevealed pile");
-        }
+    public boolean wasDrawnFrom(){
+        return stack.peek().isRevealed();
     }
 
     public void layCard(Card card){

@@ -46,7 +46,7 @@ public class PlayField {
     }
 
     private int calculatePosition(int x, int y){
-        return 4*x+y+1;
+        return 4*x+y;
     }
 
     private Map<Character, Integer> calculateCoordinates(int z){

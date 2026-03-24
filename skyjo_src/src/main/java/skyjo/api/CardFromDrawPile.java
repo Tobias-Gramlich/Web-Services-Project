@@ -1,5 +1,6 @@
 package skyjo.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -15,10 +16,14 @@ public class CardFromDrawPile {
     @Inject
     GameJooqRepository repo;
 
+    //TODO: Authenticate User
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Card getCard(@PathParam("id") Long id) {
+    public Card getCard(@PathParam("id") Long id) throws JsonProcessingException {
         Game game = repo.getGameById(id);
-        return game.drawFromDrawPile();
+        Card card = game.getDrawPile().showFristCard();
+        repo.updateGameSnapshot(game);
+        return card;
     }
 }
