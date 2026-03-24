@@ -9,14 +9,12 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.jboss.logging.Logger;
 import skyjo.api.dto.ActionRequest;
+import skyjo.api.dto.MoveValidatorResponse;
 import skyjo.api.wsconnector.GameConnectionRegistry;
 import skyjo.application.Calculator;
 import skyjo.application.MoveValidator;
 import skyjo.application.Mover;
-import skyjo.domain.Action;
-import skyjo.domain.Game;
-import skyjo.domain.Player;
-import skyjo.domain.Status;
+import skyjo.domain.*;
 import skyjo.infrastructure.persistence.repository.GameJooqRepository;
 
 import java.net.URI;
@@ -34,6 +32,8 @@ public class Move {
     GameJooqRepository repository;
     @Inject
     GameConnectionRegistry connectionRegistry;
+    @Inject
+    Mover mover;
 
     private static final Logger LOG = Logger.getLogger(Move.class);
 
@@ -71,7 +71,7 @@ public class Move {
                     .build();
         }
 
-        // 2. Das Spiel aus dem Repository laden
+        // 2. Load Game from Repository
         Game game = repository.getGameById(request.getGameId());
         if (game == null) {
             return Response.status(Response.Status.NOT_FOUND)
@@ -80,7 +80,7 @@ public class Move {
                     .build();
         }
 
-        // 3. Den Spieler laden
+        // 3. Load Player from Repository
         Player player = repository.getPlayer(playerId);
         if (player == null) {
             return Response.status(Response.Status.NOT_FOUND)
@@ -90,31 +90,33 @@ public class Move {
         }
 
         // 4. Action erstellen und validieren
-        Action a = game.createAction(request, player);
-        boolean valid = MoveValidator.validateMove(a);
+        Action action = game.createAction(request, player);
+        MoveValidatorResponse moveValidatorResponse = MoveValidator.validateMove(action);
 
-        if (!valid) {
+        if (!moveValidatorResponse.valid()) {
             // Hier senden wir jetzt ein strukturiertes JSON-Objekt zurück
             return Response.status(Response.Status.BAD_REQUEST)
                     .type(MediaType.APPLICATION_JSON)
-                    .entity(Map.of("error", "You tried to make an invalid move!"))
+                    .entity(Map.of("error", moveValidatorResponse.errorMessage()))
                     .build();
         }
 
-        // 5. Broadcast Action to Room
+        System.out.println("Checkpoint");
+
+        // 6. Move ausführen
+        mover.makeMove(action);
+
+        // 7. Broadcast Action to Room
         String payload = mapper.writeValueAsString(Map.of(
                 "type", "MOVE_MADE",
                 "action", request,
                 "playerId", playerId
         ));
         connectionRegistry.broadcastToGame(request.getGameId(), payload);
-        //4. Move ausführen
-        Mover mover = new Mover();
-        mover.makeMove(a);
 
         //TODO UI - Update an WebSocket senden
         // Spiel beendet
-        if (a.getGame().getPhase() == Status.END) {
+        if (action.getGame().getPhase() == Status.END) {
             // Punktzahlen berechnen
             Map<Long, Long> points= calculatePointsFromRound(game);
 

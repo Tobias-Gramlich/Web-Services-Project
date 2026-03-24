@@ -53,6 +53,8 @@ public class CardFromDrawPile {
                     .build();
         }
         Game game = repo.getGameById(id);
-        return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON).entity(game.drawFromDrawPile()).build();
+        Card card = game.getDrawPile().showFristCard();
+        repo.updateGameSnapshot(game);
+        return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON).entity(card).build();
     }
 }
