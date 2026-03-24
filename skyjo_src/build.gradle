@@ -38,6 +38,7 @@ dependencies {
     implementation 'io.quarkus:quarkus-devui'
     implementation 'io.quarkus:quarkus-websockets-next'
     implementation 'io.quarkus:quarkus-websockets-next'
+    implementation 'io.quarkus:quarkus-websockets-next'
 
     // Optional
     implementation 'io.quarkus:quarkus-hibernate-orm'

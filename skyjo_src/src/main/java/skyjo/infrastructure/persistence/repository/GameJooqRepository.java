@@ -3,6 +3,7 @@ package skyjo.infrastructure.persistence.repository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import infrastructure.jooq.generated.tables.records.ActionRecord;
 import infrastructure.jooq.generated.tables.records.PlayerRecord;
+import org.jboss.logging.Logger;
 import skyjo.domain.Action;
 import skyjo.domain.Player;
 import infrastructure.jooq.generated.tables.records.GameRecord;
@@ -31,6 +32,7 @@ public class GameJooqRepository implements IGameRepository {
     @Inject
     GameMapper gameMapper;
     private final ObjectMapper mapper = new ObjectMapper();
+    private Logger LOG = Logger.getLogger(GameJooqRepository.class);
 
     @Override
     @Transactional
@@ -198,7 +200,7 @@ public class GameJooqRepository implements IGameRepository {
 
     @Override
     public Game getGame(Long player_id) {
-        Long game_id = Objects.requireNonNull(dsl.selectFrom(PLAYER).where(PLAYER.ID.eq(ULong.valueOf(player_id))).fetchOne(PLAYER.CURRENT_GAME_ID)).longValue();
+        Long game_id = dsl.selectFrom(PLAYER).where(PLAYER.ID.eq(ULong.valueOf(player_id))).fetchOne(PLAYER.CURRENT_GAME_ID).longValue();
         return getGameById(game_id);
     }
 
@@ -211,8 +213,14 @@ public class GameJooqRepository implements IGameRepository {
 
     @Override
     public Player getPlayer(Long player_id) {
-        PlayerRecord p = dsl.selectFrom(PLAYER).where(PLAYER.ID.eq(ULong.valueOf(player_id))).fetchOneInto(PlayerRecord.class);
-        assert p != null;
+        LOG.info("Looking up player with ID: " + player_id);
+        PlayerRecord p = dsl.selectFrom(PLAYER)
+                .where(PLAYER.ID.eq(ULong.valueOf(player_id)))
+                .fetchOneInto(PlayerRecord.class);
+        if (p == null) {
+            LOG.warn("No player found for ID: " + player_id);
+            return null;
+        }
         return gameMapper.toDomainPlayer(p);
     }
 

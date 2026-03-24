@@ -41,6 +41,9 @@ public class GameMapper implements IGameMapper {
 
     @Override
     public Player toDomainPlayer(PlayerRecord p) {
+        if (p == null) {
+            return null;
+        }
         PlayField pf = toDomain(new String(p.getPlayfield(), StandardCharsets.UTF_8));
         boolean lastMove = pf.countRevealedCard() == 12;
 
