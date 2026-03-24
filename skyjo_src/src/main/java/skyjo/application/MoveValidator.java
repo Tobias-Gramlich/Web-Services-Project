@@ -12,7 +12,6 @@ public class MoveValidator {
         Game game = action.getGame();
         Player player = action.getPlayer();
         boolean cardWasDrawn = game.getDrawPile().wasDrawnFrom();
-        System.out.println("Was drawn: " + cardWasDrawn);
 
         // Check if it's the turn of the Player
         if (player.getId() != game.getCurrentPlayer().getId()) {

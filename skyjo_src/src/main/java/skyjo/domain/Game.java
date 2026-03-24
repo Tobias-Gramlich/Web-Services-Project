@@ -102,8 +102,6 @@ public class Game {
         }
         int x = request.getCardIndex() / 4;
         int y = request.getCardIndex() % 4;
-        System.out.println(x);
-        System.out.println(y);
         assert discardPile != null;
         discardPile.layCard(player.getPlayField().switchCard(card, x, y));
         PlayField after = player.getPlayField();

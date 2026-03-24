@@ -101,8 +101,6 @@ public class Move {
                     .build();
         }
 
-        System.out.println("Checkpoint");
-
         // 6. Move ausführen
         mover.makeMove(action);
 
