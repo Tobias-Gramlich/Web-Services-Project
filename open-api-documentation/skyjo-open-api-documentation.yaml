@@ -1,0 +1,193 @@
+---
+openapi: 3.1.0
+components:
+  schemas:
+    ActionRequest:
+      type: object
+      properties:
+        gameId:
+          type: integer
+          format: int64
+        playerToken:
+          type: string
+        actionType:
+          $ref: "#/components/schemas/ActionType"
+        cardIndex:
+          type: integer
+          format: int32
+        fromDrawPile:
+          type: boolean
+        keepCard:
+          type: boolean
+    ActionType:
+      type: string
+      enum:
+      - DRAW_FROM_DRAW_PILE
+      - DRAW_FROM_DISCARD_PILE
+    AuthTokenRequest:
+      type: object
+      properties:
+        token:
+          type: string
+    CardResponse:
+      type: object
+      properties:
+        revealed:
+          type: boolean
+        value:
+          type: integer
+          format: int32
+    GameResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        players:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlayerResponse"
+        discardedCard:
+          $ref: "#/components/schemas/CardResponse"
+        currentPlayerIndex:
+          type: integer
+          format: int32
+        currentPlayerId:
+          type: integer
+          format: int64
+        phase:
+          type: string
+        round:
+          type: integer
+          format: int32
+    PlayFieldResponse:
+      type: object
+      properties:
+        cards:
+          type: array
+          items:
+            $ref: "#/components/schemas/CardResponse"
+    PlayerResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        playField:
+          $ref: "#/components/schemas/PlayFieldResponse"
+        points:
+          type: integer
+          format: int64
+        lastMoveDone:
+          type: boolean
+paths:
+  /demo/create:
+    post:
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: {}
+      summary: Create
+      tags:
+      - Demo Game Resource
+  /getCard/{id}:
+    get:
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthTokenRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: {}
+      summary: Get Card
+      tags:
+      - Card From Draw Pile
+  /getGame-{id}:
+    get:
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameResponse"
+      summary: Get Game
+      tags:
+      - Get Game
+  /move:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActionRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: {}
+        "400":
+          description: Bad Request
+      summary: Validate Move
+      tags:
+      - Move
+  /setUpGame:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int64
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameResponse"
+        "400":
+          description: Bad Request
+      summary: Set Up Game
+      tags:
+      - Set Up Point
+  /test:
+    get:
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+      summary: Test
+      tags:
+      - Test Point
+info:
+  title: java.skyjo-logic API
+  version: 1.0.0-SNAPSHOT

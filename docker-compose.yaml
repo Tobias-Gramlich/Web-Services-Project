@@ -102,7 +102,8 @@ services:
       - ./.env
 
     environment:
-      QUARKUS_HTTP_PORT: 1023
+      QUARKUS_HTTP_PORT: ${SKYJO_PORT}
+      QUARKUS_HTTP_HOST: 0.0.0.0
       DB_HOST: web-services-db
       DB_PORT: ${DB_PORT}
       DB_NAME: ${SKYJO_DATABASE}
