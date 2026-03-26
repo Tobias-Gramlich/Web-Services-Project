@@ -117,7 +117,18 @@ services:
     depends_on:
       web-services-db:
         condition: service_healthy
-    
+
+  frontend:
+    build:
+      context: ./demo_frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_USER_API_BASE: ${VITE_USER_API_BASE:-http://localhost:3001/users}
+        VITE_COLOR_API_BASE: ${VITE_COLOR_API_BASE:-http://localhost:3003}
+        VITE_MATCHMAKING_WS_URL: ${VITE_MATCHMAKING_WS_URL:-ws://localhost:8080}
+    ports:
+      - ${FRONTEND_DEMO_PORTS}
+    restart: unless-stopped
 
 volumes:
   web-services-db_data:
