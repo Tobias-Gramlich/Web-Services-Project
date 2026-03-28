@@ -87,7 +87,7 @@ export function AccountSettingsPage({ authToken, setAuthToken, logout }) {
         </button>
       </SectionCard>
 
-      <SectionCard title="Logout" subtitle="Meldet dich aus und bringt dich zurück zur Login-Seite.">
+      <SectionCard title="Logout" subtitle="Meldet dich ab und bringt dich zurück zur Login-Seite.">
         <button className="secondary-button" onClick={logout}>
           Logout
         </button>
