@@ -19,7 +19,7 @@ public class PlayField {
     public Card switchCard(Card card, int x, int y){
         int position = calculatePosition(x, y);
         Card oldCard = playField.get(position);
-        playField.remove(position);
+        //playField.remove(position);
         playField.set(position, card);
         return oldCard;
     }

@@ -103,7 +103,13 @@ public class Game {
         int x = request.getCardIndex() / 4;
         int y = request.getCardIndex() % 4;
         assert discardPile != null;
-        discardPile.layCard(player.getPlayField().switchCard(card, x, y));
+        if (request.isKeepCard()) {
+            discardPile.layCard(player.getPlayField().switchCard(card, x, y));
+        } else {
+            discardPile.layCard(card);
+            getCurrentPlayer().getPlayField().getCard(x,y).reveal();
+        }
+
         PlayField after = player.getPlayField();
 
         return new Action(
