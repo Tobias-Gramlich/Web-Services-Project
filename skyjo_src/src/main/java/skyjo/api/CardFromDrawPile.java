@@ -10,8 +10,10 @@ import jakarta.ws.rs.core.Response;
 import skyjo.api.dto.AuthTokenRequest;
 import skyjo.api.dto.PlayfieldCardRequest;
 import skyjo.api.wsconnector.GameConnectionRegistry;
+import skyjo.domain.Action;
 import skyjo.domain.Card;
 import skyjo.domain.Game;
+import skyjo.infrastructure.persistence.dto.ActionRow;
 import skyjo.infrastructure.persistence.repository.GameJooqRepository;
 
 import java.util.Map;
@@ -60,7 +62,7 @@ public class CardFromDrawPile {
                     .build();
         }
 
-        Card card = game.getDrawPile().showFristCard();
+        Card card = game.getDrawPile().showFirstCard();
         repo.updateGameSnapshot(game);
         return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON).entity(card).build();
     }
@@ -102,11 +104,38 @@ public class CardFromDrawPile {
                     .entity(Map.of("error", "It's not your turn"))
                     .build();
         }
+        //check if player already revealed a card in current action
+        ActionRow a = repo.getActionRow((long) game.getMoveCounter(), game.getId());
+        if (a == null) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(Map.of("error", "Move not initialised"))
+                    .build();
+        }
+
+        if (a.revealed_card())  {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(Map.of("error", "You can only reveal one card in your playfield per move"))
+                    .build();
+        }
+
+
 
         Card card = game.getCurrentPlayer().getPlayField().getCard(request.getCardIndex()/4, request.getCardIndex()%4);
-        if (!card.isRevealed()) {
+
+        if(card.isRevealed()) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(Map.of("error", "This card is already revealed"))
+                    .build();
+        } else {
             card.reveal();
         }
+
+        repo.revealCard(game);
+
+        repo.updateGameSnapshot(game);
         return Response.status(Response.Status.OK)
                 .type(MediaType.APPLICATION_JSON)
                 .entity(card)

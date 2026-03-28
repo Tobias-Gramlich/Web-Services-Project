@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import skyjo.domain.Game;
 import skyjo.domain.Player;
 import skyjo.domain.Action;
+import skyjo.infrastructure.persistence.dto.ActionRow;
 
 import java.util.List;
 
@@ -31,4 +32,8 @@ public interface IGameRepository {
     public Player getPlayer(Long player_id);
     public List<Player> getPlayers(Long game_id);
     public Action getAction(Long action_id, Long game_id);
+
+    ActionRow getActionRow(Long action_id, Long game_id);
+
+    void revealCard(Game game);
 }

@@ -73,7 +73,12 @@ public class GameUpsetter {
         // Set Game Phase to round since it is properly initialised now
         game.setPhase(Status.ROUNDS);
 
+        //insert game into db to get gameid
+        repo.insertNewGame(game);
+        //initialise first move
+        repo.initialise_move(game);
+
         // Insert game into database and return saved game
-        return repo.insertNewGame(game);
+        return game;
     }
 }

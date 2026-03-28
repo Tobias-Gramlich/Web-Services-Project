@@ -108,7 +108,7 @@ tasks.named("compileTestJava") {
 
 // ---------- Flyway ----------
 flyway {
-    url = "jdbc:mariadb://localhost:3306/skyjo"
+    url = "jdbc:mariadb://localhost:3307/skyjo"
     user = "${jooqDBuser}"
     password = "${jooqDBpassword}"
     locations = ["filesystem:src/main/resources/db/migration"]

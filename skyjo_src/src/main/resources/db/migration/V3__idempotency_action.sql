@@ -1,0 +1,3 @@
+ALTER TABLE action
+    ADD COLUMN drawnCardDrawPile BOOLEAN DEFAULT 0,
+  ADD COLUMN revealedCardInPf   BOOLEAN DEFAULT 0;

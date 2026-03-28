@@ -47,7 +47,6 @@ public class MoveValidator {
         if (actionType == ActionType.DRAW_FROM_DISCARD_PILE && !action.isNewCardInField()){
             return new MoveValidatorResponse(false, "Has to keep Card when drawn from Discard Pile");
         }
-
         return new MoveValidatorResponse(true, "");
     }
 }

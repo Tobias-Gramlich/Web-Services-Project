@@ -54,7 +54,7 @@ public class Pile {
         return stack.pop();
     }
 
-    public Card showFristCard(){
+    public Card showFirstCard(){
         Card drawnCard = stack.peek();
         drawnCard.reveal();
         return drawnCard;

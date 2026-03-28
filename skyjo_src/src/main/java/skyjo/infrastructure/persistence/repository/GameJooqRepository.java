@@ -5,6 +5,7 @@ import infrastructure.jooq.generated.tables.records.ActionRecord;
 import infrastructure.jooq.generated.tables.records.PlayerRecord;
 import org.jboss.logging.Logger;
 import skyjo.domain.Action;
+import skyjo.domain.ActionType;
 import skyjo.domain.Player;
 import infrastructure.jooq.generated.tables.records.GameRecord;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -16,11 +17,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import skyjo.domain.Game;
 import org.jooq.types.ULong;
+import skyjo.infrastructure.persistence.dto.ActionRow;
 import skyjo.infrastructure.persistence.mapper.GameMapper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static infrastructure.jooq.generated.Tables.*;
 
@@ -144,17 +145,26 @@ public class GameJooqRepository implements IGameRepository {
                 .execute();
     }
 
-
+    public void initialise_move(Game game) {
+        dsl.insertInto(ACTION)
+                .set(ACTION.GAME_ID, ULong.valueOf(game.getId()))
+                .set(ACTION.ACTION_ID, ULong.valueOf(game.getMoveCounter()))
+                .set(ACTION.PLAYER_ID, ULong.valueOf(game.getCurrentPlayer().getId()))
+                .set(ACTION.ACTION_TYPE, ActionType.DB_SPACE.toString())
+                .execute();
+    }
 
     @Override
     public void insertAction(Game game, Action action) throws JsonProcessingException {
-        dsl.insertInto(ACTION)
-                .set(ACTION.GAME_ID, ULong.valueOf(game.getId()))
-                .set(ACTION.PLAYER_ID, ULong.valueOf(action.getPlayer().getId()))
-                .set(ACTION.ACTION_ID, ULong.valueOf(game.getMoveCounter()))
-                .set(ACTION.FIELD_BEFORE, mapper.writeValueAsString(action.getPlayFieldBefore()))
-                .set(ACTION.FIELD_AFTER, mapper.writeValueAsString(action.getPlayFieldAfter()))
-                .set(ACTION.ACTION_TYPE, mapper.writeValueAsString(action.getActionType()))
+        dsl.update(ACTION)
+                .set(ACTION.FIELD_BEFORE, action.getPlayFieldBefore().toString())
+                .set(ACTION.FIELD_AFTER, action.getPlayFieldAfter().toString())
+                .set(ACTION.ACTION_TYPE, action.getActionType().toString())
+                .set(ACTION.NEWCARDINFIELD, (byte) (action.isNewCardInField() ? 1 : 0))
+                .set(ACTION.DRAWPILE, (byte) (action.isDrawPile() ? 1 : 0))
+                .where(ACTION.GAME_ID.eq(ULong.valueOf(game.getId())))
+                .and(ACTION.ACTION_ID.eq(ULong.valueOf(game.getMoveCounter())))
+                .and(ACTION.PLAYER_ID.eq(ULong.valueOf(game.getCurrentPlayer().getId())))
                 .execute();
     }
 
@@ -239,5 +249,23 @@ public class GameJooqRepository implements IGameRepository {
         ActionRecord a = dsl.selectFrom(ACTION).where(ACTION.ACTION_ID.eq(ULong.valueOf(action_id))).and(ACTION.GAME_ID.eq(ULong.valueOf(game_id))).fetchOneInto(ActionRecord.class);
         assert a != null;
         return gameMapper.toDomain(a);
+    }
+
+    @Override
+    public ActionRow getActionRow(Long action_id, Long game_id) {
+        ActionRecord a = dsl.selectFrom(ACTION).where(ACTION.ACTION_ID.eq(ULong.valueOf(action_id)))
+                .and(ACTION.GAME_ID.eq(ULong.valueOf(game_id))).fetchOneInto(ActionRecord.class);
+        if (a == null) return null;
+        return gameMapper.toDomainActionRow(a);
+    }
+
+    @Override
+    public void revealCard(Game game) {
+        dsl.update(ACTION)
+                .set(ACTION.REVEALEDCARDINPF, (byte) 1)
+                .where(ACTION.GAME_ID.eq(ULong.valueOf(game.getId())))
+                .and(ACTION.ACTION_ID.eq(ULong.valueOf(game.getMoveCounter())))
+                .and(ACTION.PLAYER_ID.eq(ULong.valueOf(game.getCurrentPlayer().getId())))
+                .execute();
     }
 }
