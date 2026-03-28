@@ -11,7 +11,7 @@ public class Mover {
     @Inject
     GameJooqRepository repo;
 
-    public Game makeMove(Action action) throws JsonProcessingException {
+    public Game     makeMove(Action action) throws JsonProcessingException {
         Game g = action.getGame();
 
         // lay Card

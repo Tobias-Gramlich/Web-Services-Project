@@ -10,6 +10,7 @@ import jakarta.ws.rs.core.Response;
 import org.jboss.logging.Logger;
 import skyjo.api.dto.ActionRequest;
 import skyjo.api.dto.MoveValidatorResponse;
+import skyjo.api.mapper.GameResponseMapper;
 import skyjo.api.wsconnector.GameConnectionRegistry;
 import skyjo.application.Calculator;
 import skyjo.application.MoveValidator;
@@ -21,6 +22,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.HashMap;
 import java.util.Map;
 
 import static skyjo.application.Calculator.calculatePointsFromRound;
@@ -104,16 +106,7 @@ public class Move {
         // 6. Move ausführen
         mover.makeMove(action);
 
-        // 7. Broadcast Action to Room
-        String payload = mapper.writeValueAsString(Map.of(
-                "type", "MOVE_MADE",
-                "action", request,
-                "playerId", playerId
-        ));
-        connectionRegistry.broadcastToGame(request.getGameId(), payload);
 
-        //TODO UI - Update an WebSocket senden
-        // Spiel beendet
         if (action.getGame().getPhase() == Status.END) {
             // Punktzahlen berechnen
             Map<Long, Long> points= calculatePointsFromRound(game);
@@ -125,14 +118,20 @@ public class Move {
             if(game.checkIfEnd()) {
                 // get end points to return to UI
                 Map<Long, Long> endPoints = Calculator.calculateEndPoints(game);
-                //TODO  return end points through web socket
-
+                Map<String, Object> message = new HashMap<>();
+                message.put("type", "END_POINTS");
+                message.put("payload", endPoints);
+                connectionRegistry.broadcastToGame(request.getGameId(), mapper.writeValueAsString(message));
             }
-            // TODO  update end round
-
+            Map<String, Object> message = new HashMap<>();
+            message.put("type", "END_ROUND");
+            message.put("payload", points);
+            connectionRegistry.broadcastToGame(request.getGameId(), mapper.writeValueAsString(message));
         }
-        //TODO Spiel nicht beendet - neuer GameSnapshot als Update senden.
-
+        Map<String, Object> message = new HashMap<>();
+        message.put("type", "UI_UPDATE");
+        message.put("payload", GameResponseMapper.toResponse(game));
+        connectionRegistry.broadcastToGame(request.getGameId(), mapper.writeValueAsString(message));
 
         return Response.ok().build();
     }
