@@ -118,17 +118,37 @@ services:
       web-services-db:
         condition: service_healthy
 
+  #frontend:
+    #build:
+      #context: ./demo_frontend
+      #dockerfile: Dockerfile
+      #args:
+        #VITE_USER_API_BASE: ${VITE_USER_API_BASE:-http://localhost:3001/users}
+        #VITE_COLOR_API_BASE: ${VITE_COLOR_API_BASE:-http://localhost:3003}
+        #VITE_MATCHMAKING_WS_URL: ${VITE_MATCHMAKING_WS_URL:-ws://localhost:8080}
+    #ports:
+      #- ${FRONTEND_DEMO_PORTS}
+    #restart: unless-stopped
+
   frontend:
-    build:
-      context: ./demo_frontend
-      dockerfile: Dockerfile
-      args:
-        VITE_USER_API_BASE: ${VITE_USER_API_BASE:-http://localhost:3001/users}
-        VITE_COLOR_API_BASE: ${VITE_COLOR_API_BASE:-http://localhost:3003}
-        VITE_MATCHMAKING_WS_URL: ${VITE_MATCHMAKING_WS_URL:-ws://localhost:8080}
-    ports:
-      - ${FRONTEND_DEMO_PORTS}
-    restart: unless-stopped
+      build:
+        context: ./frontend_src
+        dockerfile: Dockerfile
+      container_name: frontend
+      restart: unless-stopped
+      depends_on:
+        - benutzerverwaltung
+        - matchmaking
+        - color-api
+        - skyjo-logic
+      environment:
+        VITE_USER_API_BASE: http://localhost:${BENUTZERVERWALTUNG_PORT}
+        VITE_MATCHMAKING_HTTP_BASE: http://localhost:${MATCHMAKING_PORT}
+        VITE_MATCHMAKING_WS_URL: ws://localhost:${MATCHMAKING_WS_PORT}
+        VITE_COLOR_API_BASE: http://localhost:${COLOR_API_PORT}
+        VITE_SKYJO_API_BASE: http://localhost:8090
+      ports:
+        - ${FRONTEND_DOCKER_PORT} 
 
 volumes:
   web-services-db_data:

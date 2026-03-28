@@ -4,8 +4,11 @@ const {
   getStore,
   safeSend,
   broadcastToRoom,
-  dbRoomSnapshot,
 } = require("./privateRoomStore");
+
+// Für Frontend-Tests aktuell auf 1 setzen.
+// Später einfach wieder auf 2 ändern, wenn ein Spiel erst ab zwei Spielern starten soll.
+const MIN_PLAYERS_TO_START = 1;
 
 function normalizeRoomCode(input) {
   return (input ?? "").toString().trim();
@@ -30,6 +33,7 @@ async function PrivateStart(ws, payload = {}) {
     safeSend(ws, { type: "error", error: "MISSING_USER_ID" });
     return;
   }
+
   if (!roomCode) {
     safeSend(ws, { type: "error", error: "MISSING_ROOM_CODE" });
     return;
@@ -51,8 +55,17 @@ async function PrivateStart(ws, payload = {}) {
     return;
   }
 
-  if (countPlayers(dbRoom) < 2) {
-    safeSend(ws, { type: "error", error: "NOT_ENOUGH_PLAYERS", payload: { roomCode, minPlayers: 2 } });
+  const playerCount = countPlayers(dbRoom);
+  if (playerCount < MIN_PLAYERS_TO_START) {
+    safeSend(ws, {
+      type: "error",
+      error: "NOT_ENOUGH_PLAYERS",
+      payload: {
+        roomCode,
+        minPlayers: MIN_PLAYERS_TO_START,
+        currentPlayers: playerCount,
+      },
+    });
     return;
   }
 
@@ -60,18 +73,27 @@ async function PrivateStart(ws, payload = {}) {
     dbRoom.host,
     dbRoom.player2,
     dbRoom.player3,
-    dbRoom.player4
-  ].filter(player => player != null);
-  
+    dbRoom.player4,
+  ].filter((player) => player != null);
+
   let response;
 
   try {
     response = await axios.post(process.env.SKYJO_LOGIC_ROUTE, arrayOfPlayers);
-    if(response.data.error){
+    if (response.data.error) {
+      safeSend(ws, {
+        type: "error",
+        error: "SKYJO_SETUP_FAILED",
+        payload: { roomCode },
+      });
       return;
     }
-  } 
-  catch (err){
+  } catch (err) {
+    safeSend(ws, {
+      type: "error",
+      error: "SKYJO_SETUP_FAILED",
+      payload: { roomCode },
+    });
     return;
   }
 
