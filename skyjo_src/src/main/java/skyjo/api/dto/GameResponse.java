@@ -5,6 +5,7 @@ import java.util.List;
 public record GameResponse(
         Long id,
         List<PlayerResponse> players,
+        CardResponse discardCard,
         int currentPlayerIndex,
         Long currentPlayerId,
         String phase,

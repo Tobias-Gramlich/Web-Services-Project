@@ -22,6 +22,7 @@ public final class GameResponseMapper {
                 game.getPlayers().stream()
                         .map(GameResponseMapper::toResponse)
                         .toList(),
+                toResponse(game.getDiscardPile().showFirstCard()),
                 game.getCurrentPlayerIndex(),
                 game.getCurrentPlayer() != null ? game.getCurrentPlayer().getId() : null,
                 game.getPhase() != null ? game.getPhase().name() : null,
