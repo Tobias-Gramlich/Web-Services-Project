@@ -7,6 +7,7 @@ import infrastructure.jooq.generated.tables.records.GameRecord;
 import infrastructure.jooq.generated.tables.records.PlayerRecord;
 import jakarta.enterprise.context.ApplicationScoped;
 import skyjo.domain.*;
+import skyjo.infrastructure.persistence.dto.ActionRow;
 import skyjo.infrastructure.persistence.repository.GameJooqRepository;
 
 import java.nio.charset.StandardCharsets;
@@ -75,5 +76,10 @@ public class GameMapper implements IGameMapper {
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException("Could not deserialize Game JSON", e);
         }
+    }
+
+    @Override
+    public ActionRow toDomainActionRow(ActionRecord a) {
+        return new ActionRow(a.getGameId().longValue(), a.getActionId().longValue(), a.getDrawncarddrawpile() == 1,a.getRevealedcardinpf() == 1);
     }
 }

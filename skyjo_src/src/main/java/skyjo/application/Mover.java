@@ -37,6 +37,9 @@ public class Mover {
         // update playfield in db
         repo.updatePlayer(g.getCurrentPlayer());
 
+        //insert action into database
+        repo.insertAction(g, action);
+
         //change current player
         g.changeCurrentPlayer();
 
@@ -44,6 +47,9 @@ public class Mover {
         if (g.getCurrentPlayer().getLastMoveDone()) {
             g.setPhase(Status.END);
         }
+
+        //initialize new move
+        repo.initialise_move(g);
 
         // update playfield in GameSnapshot
         repo.updateGameSnapshot(g);
