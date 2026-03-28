@@ -24,6 +24,11 @@ public class PlayField {
         return oldCard;
     }
 
+    public Card getCard(int x, int y){
+        int position = calculatePosition(x, y);
+        return playField.get(position);
+    }
+
     public Long calculateSum(){
         Long count = 0L;
         for (Card card : playField){
