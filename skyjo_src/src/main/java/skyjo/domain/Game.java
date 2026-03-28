@@ -91,29 +91,35 @@ public class Game {
     }
 
     public Action createAction(ActionRequest request, Player player) {
-        PlayField before = player.getPlayField();
+        // 1. Snapshot the state BEFORE changes
+        PlayField before = player.getPlayField().deepCopy();
 
-        // logic to determine 'after' and 'card'
-        Card card = null;
+        Card card;
         if (request.isFromDrawPile()) {
             card = drawFromDrawPile();
         } else {
             card = drawFromDiscardPile();
-        }
-        int x = request.getCardIndex() / 4;
-        int y = request.getCardIndex() % 4;
-        assert discardPile != null;
-        if (request.isKeepCard()) {
-            discardPile.layCard(player.getPlayField().switchCard(card, x, y));
-        } else {
-            discardPile.layCard(card);
-            getCurrentPlayer().getPlayField().getCard(x,y).reveal();
+            // Rule enforcement: if from discard, must keep.
         }
 
-        PlayField after = player.getPlayField();
+        int row = request.getCardIndex() / 4;
+        int col = request.getCardIndex() % 4;
+
+        if (request.isKeepCard()) {
+            // Switch returns the old card to be discarded
+            Card oldCard = player.getPlayField().switchCard(card, row, col);
+            discardPile.layCard(oldCard);
+        } else {
+            // Only allowed if drawn from Draw Pile
+            discardPile.layCard(card);
+            player.getPlayField().getCard(row, col).reveal();
+        }
+
+        // 2. Snapshot the state AFTER changes
+        PlayField after = player.getPlayField().deepCopy();
 
         return new Action(
-                ActionType.valueOf(String.valueOf(request.getActionType())),
+                ActionType.valueOf(request.getActionType().name()),
                 before,
                 after,
                 request.isFromDrawPile(),
