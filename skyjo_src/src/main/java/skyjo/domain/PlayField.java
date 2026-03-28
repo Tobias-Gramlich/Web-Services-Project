@@ -62,4 +62,8 @@ public class PlayField {
         hashMap.put('y', y);
         return hashMap;
     }
+
+    public PlayField deepCopy() {
+        return new PlayField(playField);
+    }
 }
