@@ -104,6 +104,29 @@ app.post("/frontend-api/skyjo/move", async (req, res) => {
   }
 });
 
+app.post("/frontend-api/skyjo/round", async (req, res) => {
+  try {
+    const response = await fetch(`${skyjoApiBase}/round`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(req.body || {}),
+    });
+
+    const text = await response.text();
+
+    res
+      .status(response.status)
+      .type(response.headers.get("content-type") || "application/json")
+      .send(text);
+  } catch (error) {
+    res.status(500).json({
+      error: error.message || "Proxy request failed",
+    });
+  }
+});
+
 app.post("/frontend-api/skyjo/setupGame", async (req, res) => {
   try {
     const response = await fetch(`${skyjoApiBase}/setUpGame`, {

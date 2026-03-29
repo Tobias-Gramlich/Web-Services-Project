@@ -11,6 +11,7 @@ public class Player {
     @Setter
     private PlayField playField;
     private Long points;
+    @Setter
     private boolean lastMoveDone;
 
     public Player (Long id, PlayField playField){

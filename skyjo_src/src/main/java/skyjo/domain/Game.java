@@ -113,24 +113,26 @@ public class Game {
         PlayField before = player.getPlayField().deepCopy();
 
         Card card;
-        if (request.isFromDrawPile()) {
-            card = drawFromDrawPile();
-        } else {
-            card = drawFromDiscardPile();
-            // Rule enforcement: if from discard, must keep.
-        }
-
         int row = request.getCardIndex() / 4;
         int col = request.getCardIndex() % 4;
 
-        if (request.isKeepCard()) {
-            // Switch returns the old card to be discarded
-            Card oldCard = player.getPlayField().switchCard(card, row, col);
-            discardPile.layCard(oldCard);
+        if (request.isFromDrawPile()) {
+            card = drawFromDrawPile();
+
+            if (request.isKeepCard()) {
+                Card oldCard = player.getPlayField().switchCard(card, row, col);
+                discardPile.layCard(oldCard);
+            } else {
+                discardPile.layCard(card);
+                player.getPlayField().getCard(row, col).reveal();
+            }
+
         } else {
-            // Only allowed if drawn from Draw Pile
-            discardPile.layCard(card);
-            player.getPlayField().getCard(row, col).reveal();
+            card = drawFromDiscardPile();
+            // Must keep — rule is already enforced, no second branch needed
+            Card discardCard = player.getPlayField().switchCard(card, row, col);
+            discardPile.layCard(discardCard);
+            player.getPlayField().getCard(row, col).reveal(); // ← don't forget to reveal!
         }
 
         // 2. Snapshot the state AFTER changes
@@ -144,20 +146,29 @@ public class Game {
                 request.isKeepCard(),
                 card,
                 player,
-                this
-        );
+                this);
     }
 
     // Map<Long, Long> mit <PlayerId, PointsFromRound>
-    public void addPoints(Map<Long, Long> points) {
+    public void addPoints(Map<Long, Long> points, GameJooqRepository gameJooqRepository) {
         for (Player player : players) {
             player.addPoints(points.get(player.getId()));
+            try {
+                gameJooqRepository.updatePlayer(player);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
         }
+        try {
+                gameJooqRepository.updateGameSnapshot(this);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
     }
 
     public boolean checkIfEnd() {
         assert players != null;
         return players.stream()
-                .anyMatch(player -> player.getPoints() == 100);
+                .anyMatch(player -> player.getPoints() >= 100);
     }
 }

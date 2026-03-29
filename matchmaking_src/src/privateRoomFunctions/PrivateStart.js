@@ -6,9 +6,7 @@ const {
   broadcastToRoom,
 } = require("./privateRoomStore");
 
-// Für Frontend-Tests aktuell auf 1 setzen.
-// Später einfach wieder auf 2 ändern, wenn ein Spiel erst ab zwei Spielern starten soll.
-const MIN_PLAYERS_TO_START = 1;
+const MIN_PLAYERS_TO_START = 2;
 
 function normalizeRoomCode(input) {
   return (input ?? "").toString().trim();

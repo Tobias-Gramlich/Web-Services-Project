@@ -1,8 +1,10 @@
 package skyjo.application;
 
+import com.arjuna.ats.txoj.common.txojPropertyManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 import skyjo.domain.*;
 import skyjo.infrastructure.persistence.repository.GameJooqRepository;
 
@@ -18,7 +20,7 @@ public class GameUpsetter {
 
     // Players are authenticated in order to use their ids
     public Game setUpGame(List<Long> players) throws JsonProcessingException {
-        if (players == null || players.size() < 1) {
+        if (players == null || players.size() < 2) {
             throw new IllegalArgumentException("A game requires at least 2 players.");
         }
 
@@ -102,8 +104,9 @@ public class GameUpsetter {
                         return card;
                     })
                     .toList();
-
+            player.setLastMoveDone(false);
             player.setPlayField(new PlayField(cards));
+            
         });
 
         // Initialize discard pile with first card from draw pile
@@ -136,6 +139,14 @@ public class GameUpsetter {
         game.setPhase(Status.ROUNDS, repo);
         repo.updateGameSnapshot(game);
 
+        game.getPlayers().forEach(player -> {
+            try {
+                repo.updatePlayer(player);
+            } catch (JsonProcessingException e) {
+                return;
+            }
+        });
+        
         //initialise first move
         repo.initialise_move(game);
     }

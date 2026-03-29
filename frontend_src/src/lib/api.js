@@ -45,4 +45,9 @@ export const skyjoApi = {
       method: 'POST',
       body: JSON.stringify(body),
     }),
+  coordinateRound: (body) =>
+    request(`/frontend-api/skyjo/round`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
 };
