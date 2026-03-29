@@ -1,5 +1,5 @@
 # Web-Services-Project
-## How to Start:
+## How to build locally:
 0. docker compose down
 1. docker compose up -d web-services-db
 2. cd skyjo_src
