@@ -123,14 +123,14 @@ router.post('/register', async (req, res) => {
     await Users.create({username: username, password: hash, email: email, activationcode: activationcode});
 
     //* Send Verification EMail
-    await sendMail({
+    /*await sendMail({
         to: email,
         subject: "Benutzerverwaltung Verification", 
         text: `Guten Tag ${username}! Hier ihr Aktivierungscode: ${activationcode}`
-    });
+    });*/
 
     //* Return Success
-    return res.json({success: true});
+    return res.json({success: true, activationcode: activationcode});
 });
 
 /**
@@ -246,14 +246,14 @@ router.post('/send_email', async (req, res) => {
     if (!match) return res.status(401).json({success: false, error: "Wrong password"});
 
     //* Send Verification EMail
-    await sendMail({
+    /*await sendMail({
         to: user.email,
         subject: "Benutzerverwaltung Verification", 
         text: `Guten Tag ${user.username}! Hier ihr Aktivierungscode: ${user.activationcode}`
-    });
+    });*/
 
     //* Return Success
-    return res.json({success: true});
+    return res.json({success: true, activationcode: user.activationcode});
 });
 
 /**
