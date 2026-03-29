@@ -33,6 +33,8 @@ public class MoveValidator {
             return new MoveValidatorResponse(false, "Not playing Rounds");
         }
 
+        
+
         // Check if a card was drawn
         if (actionType == ActionType.DRAW_FROM_DRAW_PILE && !action.getCard().isRevealed()){
             return new MoveValidatorResponse(false, "Must draw a card first");

@@ -108,8 +108,8 @@ public class Move {
             Map<Long, Long> points= calculatePointsFromRound(game);
 
             // Punktzahlen zu bestehenden Punkten aus vorherigen Runden addieren
-            game.addPoints(points);
-
+            game.addPoints(points, repository);
+            
             //überprüfen, ob Spiel zu Ende ist: Wenn ein Spieler mehr als 100 Punkte aus den Runden gesammelt hat
             if(game.checkIfEnd()) {
                 game.setPhase(Status.END_GAME, repository);

@@ -10,6 +10,7 @@ import { MatchmakingPage } from './pages/MatchmakingPage';
 import { PrivateRoomPage } from './pages/PrivateRoomPage';
 import { PrivateRoomWaitingPage } from './pages/PrivateRoomWaitingPage';
 import { SkyjoPage } from './pages/SkyjoPage';
+import { GameFinishedPage } from './pages/GameFinishedPage';
 import { ColorPage } from './pages/ColorPage';
 import { colorApi } from './lib/api';
 import { normalizeColor } from './lib/utils';
@@ -211,6 +212,16 @@ export default function App() {
           <ProtectedRoute authToken={authToken}>
             <Layout>
               <SkyjoPage {...sharedProps} />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/skyjo/:gameId/finished"
+        element={
+          <ProtectedRoute authToken={authToken}>
+            <Layout>
+              <GameFinishedPage {...sharedProps} />
             </Layout>
           </ProtectedRoute>
         }
