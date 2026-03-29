@@ -22,8 +22,9 @@ components:
     ActionType:
       type: string
       enum:
-      - DRAW_FROM_DRAW_PILE
-      - DRAW_FROM_DISCARD_PILE
+        - DRAW_FROM_DRAW_PILE
+        - DRAW_FROM_DISCARD_PILE
+        - DB_SPACE
     AuthTokenRequest:
       type: object
       properties:
@@ -47,7 +48,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/PlayerResponse"
-        discardedCard:
+        discardCard:
           $ref: "#/components/schemas/CardResponse"
         currentPlayerIndex:
           type: integer
@@ -80,6 +81,24 @@ components:
           format: int64
         lastMoveDone:
           type: boolean
+    PlayfieldCardRequest:
+      type: object
+      properties:
+        token:
+          type: string
+        cardIndex:
+          type: integer
+          format: int32
+    RoundCoordinationRequest:
+      type: object
+      properties:
+        token:
+          type: string
+        nextRound:
+          type: boolean
+        gameId:
+          type: integer
+          format: int64
 paths:
   /demo/create:
     post:
@@ -91,16 +110,16 @@ paths:
               schema: {}
       summary: Create
       tags:
-      - Demo Game Resource
+        - Demo Game Resource
   /getCard/{id}:
     get:
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
       requestBody:
         content:
           application/json:
@@ -115,15 +134,39 @@ paths:
               schema: {}
       summary: Get Card
       tags:
-      - Card From Draw Pile
+        - Card From Draw Pile
+  /getCard/{id}/pf:
+    get:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlayfieldCardRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: {}
+      summary: Reveal Card In Play Field
+      tags:
+        - Card From Draw Pile
   /getGame-{id}:
     get:
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         "200":
           description: OK
@@ -133,7 +176,7 @@ paths:
                 $ref: "#/components/schemas/GameResponse"
       summary: Get Game
       tags:
-      - Get Game
+        - Get Game
   /move:
     post:
       requestBody:
@@ -152,7 +195,26 @@ paths:
           description: Bad Request
       summary: Validate Move
       tags:
-      - Move
+        - Move
+  /round:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoundCoordinationRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: {}
+        "400":
+          description: Bad Request
+      summary: New Round
+      tags:
+        - New Round
   /setUpGame:
     post:
       requestBody:
@@ -175,7 +237,7 @@ paths:
           description: Bad Request
       summary: Set Up Game
       tags:
-      - Set Up Point
+        - Set Up Point
   /test:
     get:
       responses:
@@ -187,7 +249,7 @@ paths:
                 type: string
       summary: Test
       tags:
-      - Test Point
+        - Test Point
 info:
   title: java.skyjo-logic API
   version: 1.0.0-SNAPSHOT
