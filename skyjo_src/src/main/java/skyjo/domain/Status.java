@@ -3,6 +3,7 @@ package skyjo.domain;
 public enum Status {
     SETUP,
     ROUNDS,
-    END,
+    END_ROUND,
+    END_GAME,
     INACTIVE
 }

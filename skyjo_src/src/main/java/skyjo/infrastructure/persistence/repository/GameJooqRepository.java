@@ -268,4 +268,9 @@ public class GameJooqRepository implements IGameRepository {
                 .and(ACTION.PLAYER_ID.eq(ULong.valueOf(game.getCurrentPlayer().getId())))
                 .execute();
     }
+
+    @Override
+    public void updateGameStatus(Game game) {
+        dsl.update(GAME).set(GAME.STATUS, game.getPhase().toString()).where(GAME.ID.eq(ULong.valueOf(game.getId()))).execute();
+    }
 }

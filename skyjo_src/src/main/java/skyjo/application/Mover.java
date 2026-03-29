@@ -45,11 +45,12 @@ public class Mover {
 
         //check if he has last move already done in order to end round
         if (g.getCurrentPlayer().getLastMoveDone()) {
-            g.setPhase(Status.END);
+            g.setPhase(Status.END_ROUND, repo);
+        } else {
+            repo.initialise_move(g);
         }
 
-        //initialize new move
-        repo.initialise_move(g);
+
 
         // update playfield in GameSnapshot
         repo.updateGameSnapshot(g);

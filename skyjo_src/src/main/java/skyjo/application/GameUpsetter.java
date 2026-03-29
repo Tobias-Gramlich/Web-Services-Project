@@ -70,15 +70,73 @@ public class GameUpsetter {
         // Set that player as current player
         game.setCurrentPlayer(startingPlayer);
 
-        // Set Game Phase to round since it is properly initialised now
-        game.setPhase(Status.ROUNDS);
+
 
         //insert game into db to get gameid
         repo.insertNewGame(game);
+
         //initialise first move
         repo.initialise_move(game);
 
+        // Set Game Phase to round since it is properly initialised now
+        game.setPhase(Status.ROUNDS, repo);
+
         // Insert game into database and return saved game
         return game;
+    }
+
+    public void roundSetUp(Game game) throws JsonProcessingException {
+        game.setPhase(Status.SETUP, repo);
+        repo.updateGameSnapshot(game);
+
+
+        // Initialize draw pile
+        Pile drawPile = Pile.createDrawPile();
+
+        // Initialize play fields for players
+        game.getPlayers().forEach(player -> {
+            List<Card> cards = IntStream.range(0, 12)
+                    .mapToObj(i -> {
+                        Card card = drawPile.draw();
+                        card.reset();
+                        return card;
+                    })
+                    .toList();
+
+            player.setPlayField(new PlayField(cards));
+        });
+
+        // Initialize discard pile with first card from draw pile
+        Stack<Card> discardCards = new Stack<>();
+        discardCards.push(drawPile.draw());
+        Pile discardPile = new Pile(discardCards, true);
+
+        // set attributes of game
+        game.setDrawPile(drawPile);
+        game.setDiscardPile(discardPile);
+
+        //  Reveal two random cards for each player
+        Random random = new Random();
+        for (Player player : game.getPlayers()) {
+            List<Card> cards = player.getPlayField().getPlayField();
+            List<Integer> indices = new ArrayList<>(List.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11));
+            Collections.shuffle(indices, random);
+            cards.get(indices.get(0)).reveal();
+            cards.get(indices.get(1)).reveal();
+        }
+
+        // Find the player with the highest sum of revealed cards
+        Player startingPlayer = game.getPlayers().stream()
+                .max(Comparator.comparingLong(p -> p.getPlayField().calculateSum()))
+                .orElse(game.getPlayers().getFirst());
+
+        // Set that player as current player
+        game.setCurrentPlayer(startingPlayer);
+
+        game.setPhase(Status.ROUNDS, repo);
+        repo.updateGameSnapshot(game);
+
+        //initialise first move
+        repo.initialise_move(game);
     }
 }

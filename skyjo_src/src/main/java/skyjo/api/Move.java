@@ -18,10 +18,6 @@ import skyjo.application.Mover;
 import skyjo.domain.*;
 import skyjo.infrastructure.persistence.repository.GameJooqRepository;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -107,7 +103,7 @@ public class Move {
         mover.makeMove(action);
 
 
-        if (action.getGame().getPhase() == Status.END) {
+        if (action.getGame().getPhase() == Status.END_ROUND) {
             // Punktzahlen berechnen
             Map<Long, Long> points= calculatePointsFromRound(game);
 
@@ -116,22 +112,26 @@ public class Move {
 
             //überprüfen, ob Spiel zu Ende ist: Wenn ein Spieler mehr als 100 Punkte aus den Runden gesammelt hat
             if(game.checkIfEnd()) {
+                game.setPhase(Status.END_GAME, repository);
                 // get end points to return to UI
                 Map<Long, Long> endPoints = Calculator.calculateEndPoints(game);
-                Map<String, Object> message = new HashMap<>();
-                message.put("type", "END_POINTS");
-                message.put("payload", endPoints);
-                connectionRegistry.broadcastToGame(request.getGameId(), mapper.writeValueAsString(message));
+                Map<String, Object> message1 = new HashMap<>();
+                message1.put("type", "END_POINTS");
+                message1.put("payload", endPoints);
+                connectionRegistry.broadcastToGame(request.getGameId(), mapper.writeValueAsString(message1));
+                return Response.ok().build();
+
             }
-            Map<String, Object> message = new HashMap<>();
-            message.put("type", "END_ROUND");
-            message.put("payload", points);
-            connectionRegistry.broadcastToGame(request.getGameId(), mapper.writeValueAsString(message));
+            Map<String, Object> message2 = new HashMap<>();
+            message2.put("type", "END_ROUND");
+            message2.put("payload", calculatePointsFromRound(game));
+            connectionRegistry.broadcastToGame(request.getGameId(), mapper.writeValueAsString(message2));
+            return Response.ok().build();
         }
-        Map<String, Object> message = new HashMap<>();
-        message.put("type", "UI_UPDATE");
-        message.put("payload", GameResponseMapper.toResponse(game));
-        connectionRegistry.broadcastToGame(request.getGameId(), mapper.writeValueAsString(message));
+        Map<String, Object> message3 = new HashMap<>();
+        message3.put("type", "UI_UPDATE");
+        message3.put("payload", GameResponseMapper.toResponse(game));
+        connectionRegistry.broadcastToGame(request.getGameId(), mapper.writeValueAsString(message3));
 
         return Response.ok().build();
     }

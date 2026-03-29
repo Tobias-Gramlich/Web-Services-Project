@@ -1,25 +1,27 @@
 package skyjo.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.inject.Inject;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.bytebuddy.pool.TypePool;
 import skyjo.api.dto.ActionRequest;
+import skyjo.infrastructure.persistence.repository.GameJooqRepository;
 
 import java.util.*;
 
 @Getter
+@Setter
 @NoArgsConstructor(force = true)
+
 public class Game {
-    @Setter
     private Long id;
     private final List<Player> players;
     private int currentPlayerIndex;
-    @Setter
     private Status phase;
-    private final Pile drawPile;
-    private final Pile discardPile;
-    @Setter
+    private Pile drawPile;
+    private Pile discardPile;
     private int round;
     private int moveCounter;
 
@@ -31,6 +33,16 @@ public class Game {
         this.round = 1;
         this.moveCounter = 0;
         this.phase = Status.SETUP;
+    }
+
+    public void setPhase(Status s, GameJooqRepository gameJooqRepository) {
+        this.phase = s;
+        gameJooqRepository.updateGameStatus(this);
+        try {
+            gameJooqRepository.updateGameSnapshot(this);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     public boolean isLastMove(Long playerId) {
@@ -45,6 +57,12 @@ public class Game {
         // last move if player before has done their last move
         assert players != null;
         return players.get(Math.floorMod(currentPlayerIndex - 1, players.size())).getLastMoveDone();
+    }
+
+    // first player in list is admin, bc of matchmaking
+    @JsonIgnore
+    public Long getAdminId() {
+        return getPlayers().getFirst().getId();
     }
 
     public Player getCurrentPlayer(){

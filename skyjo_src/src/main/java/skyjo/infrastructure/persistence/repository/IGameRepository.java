@@ -36,4 +36,6 @@ public interface IGameRepository {
     ActionRow getActionRow(Long action_id, Long game_id);
 
     void revealCard(Game game);
+
+    void updateGameStatus(Game game);
 }

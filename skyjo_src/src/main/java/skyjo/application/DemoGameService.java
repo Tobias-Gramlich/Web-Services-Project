@@ -67,7 +67,7 @@ public class DemoGameService {
         Pile discardPile = new Pile(discardStack, true);
 
         Game game = new Game(players, drawPile, discardPile);
-        game.setPhase(SETUP);
+        game.setPhase(SETUP, gameJooqRepository);
 
         gameJooqRepository.insertNewGame(game);
     }
