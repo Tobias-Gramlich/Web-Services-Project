@@ -13,14 +13,14 @@ async function request(url, options = {}) {
 }
 
 export const userApi = {
-  register: (body) => request(`${config.userApiBase}/Users/register`, { method: 'POST', body: JSON.stringify(body) }),
-  sendEmail: (body) => request(`${config.userApiBase}/Users/send_email`, { method: 'POST', body: JSON.stringify(body) }),
-  activate: (body) => request(`${config.userApiBase}/Users/activate`, { method: 'POST', body: JSON.stringify(body) }),
-  login: (body) => request(`${config.userApiBase}/Users/login`, { method: 'POST', body: JSON.stringify(body) }),
-  auth: (body) => request(`${config.userApiBase}/Users/auth`, { method: 'POST', body: JSON.stringify(body) }),
-  changeUsername: (body) => request(`${config.userApiBase}/Users/change_Username`, { method: 'PUT', body: JSON.stringify(body) }),
-  changePassword: (body) => request(`${config.userApiBase}/Users/change_Password`, { method: 'PUT', body: JSON.stringify(body) }),
-  deleteAccount: (body) => request(`${config.userApiBase}/Users/delete_Account`, { method: 'DELETE', body: JSON.stringify(body) }),
+  register: (body) => request(`${config.userApiBase}/users/register`, { method: 'POST', body: JSON.stringify(body) }),
+  sendEmail: (body) => request(`${config.userApiBase}/users/send_email`, { method: 'POST', body: JSON.stringify(body) }),
+  activate: (body) => request(`${config.userApiBase}/users/activate`, { method: 'POST', body: JSON.stringify(body) }),
+  login: (body) => request(`${config.userApiBase}/users/login`, { method: 'POST', body: JSON.stringify(body) }),
+  auth: (body) => request(`${config.userApiBase}/users/auth`, { method: 'POST', body: JSON.stringify(body) }),
+  changeUsername: (body) => request(`${config.userApiBase}/users/change_Username`, { method: 'PUT', body: JSON.stringify(body) }),
+  changePassword: (body) => request(`${config.userApiBase}/users/change_Password`, { method: 'PUT', body: JSON.stringify(body) }),
+  deleteAccount: (body) => request(`${config.userApiBase}/users/delete_Account`, { method: 'DELETE', body: JSON.stringify(body) }),
 };
 
 export const colorApi = {

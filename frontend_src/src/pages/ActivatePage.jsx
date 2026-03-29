@@ -1,19 +1,27 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userApi } from '../lib/api';
 import { ResultBox } from '../components/ResultBox';
 import { SectionCard } from '../components/SectionCard';
 import { FormRow } from '../components/FormRow';
 
-export function ActivatePage({ activationUsername }) {
+export function ActivatePage({ activationUsername, activationCode, setActivationCode }) {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     username: activationUsername || '',
-    activationcode: '',
+    activationcode: activationCode || '',
   });
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [loadingKey, setLoadingKey] = useState('');
+
+  useEffect(() => {
+    setForm((current) => ({
+      ...current,
+      username: activationUsername || current.username,
+      activationcode: activationCode || current.activationcode,
+    }));
+  }, [activationUsername, activationCode]);
 
   async function submitActivate() {
     setLoadingKey('activate');
@@ -32,7 +40,7 @@ export function ActivatePage({ activationUsername }) {
     }
   }
 
-  async function resendEmail() {
+  async function requestNewCode() {
     const username = window.prompt('Bitte Username eingeben:', form.username || '');
     if (username === null) return;
 
@@ -44,9 +52,16 @@ export function ActivatePage({ activationUsername }) {
     try {
       const data = await userApi.sendEmail({ username, password });
       setResult(data);
-      setForm((current) => ({ ...current, username }));
+
+      const nextCode = String(data?.activationcode ?? '');
+      setActivationCode(nextCode);
+      setForm((current) => ({
+        ...current,
+        username,
+        activationcode: nextCode,
+      }));
     } catch (err) {
-      setError(err.message || 'Senden der Aktivierungsmail fehlgeschlagen');
+      setError(err.message || 'Neuer Aktivierungscode konnte nicht angefordert werden');
     } finally {
       setLoadingKey('');
     }
@@ -54,7 +69,15 @@ export function ActivatePage({ activationUsername }) {
 
   return (
     <div className="auth-shell">
-      <SectionCard title="Account aktivieren" subtitle="Du bleibst auf dieser Seite, bis die Aktivierung erfolgreich abgesendet wurde.">
+      <SectionCard title="Account aktivieren" subtitle="Der Aktivierungscode wird direkt angezeigt. Nutze ihn, um deinen Account freizuschalten.">
+        <div className="stat-card">
+          <div className="eyebrow">Aktueller Aktivierungscode</div>
+          <strong>{activationCode || form.activationcode || 'Noch kein Code vorhanden'}</strong>
+          <p className="muted small">
+            Nach Klick auf den Button wird ein neuer Code angefordert und die Anzeige sofort aktualisiert.
+          </p>
+        </div>
+
         <FormRow>
           <input
             placeholder="Username"
@@ -76,10 +99,10 @@ export function ActivatePage({ activationUsername }) {
           <button
             type="button"
             className="secondary-button"
-            onClick={resendEmail}
+            onClick={requestNewCode}
             disabled={loadingKey === 'sendEmail'}
           >
-            send_email
+            Neuen Aktivierungscode holen
           </button>
         </div>
       </SectionCard>
