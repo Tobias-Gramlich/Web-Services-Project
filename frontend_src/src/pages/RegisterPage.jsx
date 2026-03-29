@@ -5,7 +5,7 @@ import { ResultBox } from '../components/ResultBox';
 import { SectionCard } from '../components/SectionCard';
 import { FormRow } from '../components/FormRow';
 
-export function RegisterPage({ setActivationUsername }) {
+export function RegisterPage({ setActivationUsername, setActivationCode }) {
   const navigate = useNavigate();
   const [form, setForm] = useState({ username: '', password: '', email: '' });
   const [result, setResult] = useState(null);
@@ -19,6 +19,7 @@ export function RegisterPage({ setActivationUsername }) {
       const data = await userApi.register(form);
       setResult(data);
       setActivationUsername(form.username);
+      setActivationCode(String(data?.activationcode ?? ''));
       navigate('/activate', { replace: true });
     } catch (err) {
       setError(err.message || 'Registrierung fehlgeschlagen');

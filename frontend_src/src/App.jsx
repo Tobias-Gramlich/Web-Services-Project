@@ -49,6 +49,7 @@ export default function App() {
   const [isLoadingTheme, setIsLoadingTheme] = useState(true);
   const [authToken, setAuthToken] = useState(localStorage.getItem('accessToken') || '');
   const [activationUsername, setActivationUsername] = useState('');
+  const [activationCode, setActivationCode] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -91,6 +92,8 @@ export default function App() {
       setAuthToken,
       activationUsername,
       setActivationUsername,
+      activationCode,
+      setActivationCode,
       themeResult,
       themeError,
       reloadTheme: async () => {
@@ -113,7 +116,7 @@ export default function App() {
         navigate('/login', { replace: true });
       },
     }),
-    [authToken, activationUsername, themeResult, themeError, navigate]
+    [authToken, activationUsername, activationCode, themeResult, themeError, navigate]
   );
 
   if (isLoadingTheme) {
@@ -144,6 +147,7 @@ export default function App() {
         element={
           <RegisterPage
             setActivationUsername={setActivationUsername}
+            setActivationCode={setActivationCode}
           />
         }
       />
@@ -152,6 +156,8 @@ export default function App() {
         element={
           <ActivatePage
             activationUsername={activationUsername}
+            activationCode={activationCode}
+            setActivationCode={setActivationCode}
           />
         }
       />

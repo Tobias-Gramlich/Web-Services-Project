@@ -28,7 +28,7 @@ export function AccountSettingsPage({ authToken, setAuthToken, logout }) {
 
   return (
     <div className="page-grid">
-      <SectionCard title="Username ändern" subtitle="PUT /Users/change_Username">
+      <SectionCard title="Username ändern" subtitle="PUT /users/change_Username">
         <input
           placeholder="Neuer Username"
           value={newName}
@@ -46,7 +46,7 @@ export function AccountSettingsPage({ authToken, setAuthToken, logout }) {
         </button>
       </SectionCard>
 
-      <SectionCard title="Passwort ändern" subtitle="PUT /Users/change_Password">
+      <SectionCard title="Passwort ändern" subtitle="PUT /users/change_Password">
         <input
           type="password"
           placeholder="Neues Passwort"
@@ -65,7 +65,7 @@ export function AccountSettingsPage({ authToken, setAuthToken, logout }) {
         </button>
       </SectionCard>
 
-      <SectionCard title="Account löschen" subtitle="DELETE /Users/delete_Account">
+      <SectionCard title="Account löschen" subtitle="DELETE /users/delete_Account">
         <button
           className="danger"
           onClick={async () => {
