@@ -1,6 +1,10 @@
 services:
   web-services-db:
-    image: mariadb:11
+    build:
+      context: ./skyjo_src/src/main/resources/db
+      dockerfile: Dockerfile.db
+    platform: linux/amd64
+    image: web-services-db-custom:latest  # Ein Name für den späteren Export
     container_name: web-services-db
     restart: unless-stopped
     environment:
@@ -12,9 +16,8 @@ services:
       - ${DB_DOCKER_PORT}
     volumes:
       - web-services-db_data:/var/lib/mysql
-      - './skyjo_src/src/main/resources/db/migration/V1__initial_model.sql:/docker-entrypoint-initdb.d/V1__initial_model.sql'
     healthcheck:
-      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-p${DB_ROOT_PASSWORD}"]
+      test: [ "CMD", "mariadb-admin", "ping", "-h", "localhost", "-p${DB_ROOT_PASSWORD}" ]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -23,6 +26,8 @@ services:
     build:
       context: ./benutzerverwaltung_src
       dockerfile: Dockerfile
+    platform: linux/amd64
+    image: benutzerverwaltung:latest
     container_name: benutzerverwaltung
     restart: unless-stopped
     depends_on:
@@ -46,6 +51,8 @@ services:
     build:
       context: ./matchmaking_src
       dockerfile: Dockerfile
+    platform: linux/amd64
+    image: matchmaking:latest
     container_name: matchmaking
     restart: unless-stopped
     depends_on:
@@ -70,6 +77,8 @@ services:
     build: 
       context: ./color-api_src
       dockerfile: Dockerfile
+    platform: linux/amd64
+    image: color-api:latest
     container_name: color-api
     restart: unless-stopped
     depends_on:
@@ -96,6 +105,8 @@ services:
     build: 
       context: ./skyjo_src
       dockerfile: Dockerfile
+    platform: linux/amd64
+    image: skyjo-logic:latest
     restart: on-failure
     container_name: skyjo-logic
     env_file:
@@ -134,6 +145,14 @@ services:
       build:
         context: ./frontend_src
         dockerfile: Dockerfile
+        args:
+          VITE_SKYJO_API_BASE: "http://10.50.15.53:8090"
+          VITE_USER_API_BASE: "http://10.50.15.53:3002"
+          VITE_MATCHMAKING_HTTP_BASE: "http://10.50.15.53:3001"
+          VITE_MATCHMAKING_WS_URL: "ws://10.50.15.53:8083"
+          VITE_COLOR_API_BASE: "http://10.50.15.53:3003"
+      platform: linux/amd64
+      image: frontend:latest
       container_name: frontend
       restart: unless-stopped
       depends_on:
@@ -141,12 +160,7 @@ services:
         - matchmaking
         - color-api
         - skyjo-logic
-      environment:
-        VITE_USER_API_BASE: http://localhost:${BENUTZERVERWALTUNG_PORT}
-        VITE_MATCHMAKING_HTTP_BASE: http://localhost:${MATCHMAKING_PORT}
-        VITE_MATCHMAKING_WS_URL: ws://localhost:${MATCHMAKING_WS_PORT}
-        VITE_COLOR_API_BASE: http://localhost:${COLOR_API_PORT}
-        VITE_SKYJO_API_BASE: http://localhost:8090
+
       ports:
         - ${FRONTEND_DOCKER_PORT} 
 

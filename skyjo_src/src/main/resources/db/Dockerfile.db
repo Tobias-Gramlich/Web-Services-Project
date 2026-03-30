@@ -1,0 +1,5 @@
+FROM mariadb:11
+
+# Wir gehen davon aus, dass das SQL-Skript im Unterordner 'migration' liegt
+# Relativ zu deinem Dockerfile-Speicherort:
+COPY ./migration/V1__initial_model.sql /docker-entrypoint-initdb.d/

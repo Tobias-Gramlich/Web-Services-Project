@@ -34,7 +34,10 @@ public class Move {
     Mover mover;
 
     private static final Logger LOG = Logger.getLogger(Move.class);
-
+    @OPTIONS
+    public Response options() {
+        return Response.ok().build();
+    }
     @POST
     public Response validateMove(ActionRequest request) throws JsonProcessingException {
         LOG.info("Validating move request");

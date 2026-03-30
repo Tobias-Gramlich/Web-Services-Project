@@ -1,13 +1,12 @@
-# Production mode
+# Use Temurin JDK for Quarkus JVM mode
 FROM eclipse-temurin:21-jre
 
 WORKDIR /work/
 
-COPY build/quarkus-app/lib/ /work/lib/
-COPY build/quarkus-app/*.jar /work/
-COPY build/quarkus-app/app/ /work/app/
-COPY build/quarkus-app/quarkus/ /work/quarkus/
+# Copy the Quarkus build output
+COPY build/quarkus-app/ /work/
 
 EXPOSE 8080
 
+# Run the Quarkus jar
 CMD ["java", "-jar", "/work/quarkus-run.jar"]

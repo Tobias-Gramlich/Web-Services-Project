@@ -16,7 +16,7 @@ const database = require('./models');
 
 // Initializing Database Connection
 database.sequelize.sync({ alter: true }).then(() => {
-    app.listen(process.env.MATCHMAKING_PORT || 3001, () => {
+    app.listen(process.env.MATCHMAKING_PORT || 3002, () => {
         console.log(`----------------------------------------------------`);
         console.log(`-----Matchmaking Server is running on Port ${process.env.MATCHMAKING_PORT}-----`);
         console.log(`----------------------------------------------------`);

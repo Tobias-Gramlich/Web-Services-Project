@@ -2,11 +2,9 @@ package skyjo.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.jboss.logging.Logger;
 import skyjo.api.dto.GameResponse;
 import skyjo.api.mapper.GameResponseMapper;
@@ -24,7 +22,10 @@ public class SetUpPoint {
     GameUpsetter gameUpsetter;
 
     private static final Logger LOG = Logger.getLogger(SetUpPoint.class);
-
+    @OPTIONS
+    public Response options() {
+        return Response.ok().build();
+    }
     @POST
     public GameResponse setUpGame(List<Long> ids) throws JsonProcessingException {
         LOG.info("SetUpGame called");

@@ -23,7 +23,7 @@ public class CardFromDrawPile {
     @Inject
     GameJooqRepository repo;
     ObjectMapper mapper = new ObjectMapper();
-    @GET
+    @POST
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCard(@PathParam("id") Long id, AuthTokenRequest request) throws JsonProcessingException {
         Long playerId = 0L;
@@ -141,5 +141,8 @@ public class CardFromDrawPile {
                 .entity(card)
                 .build();
     }
-
+    @OPTIONS
+    public Response options() {
+        return Response.ok().build();
+    }
 }

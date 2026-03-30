@@ -30,15 +30,14 @@ repositories {
 
 dependencies {
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
-    implementation 'io.quarkus:quarkus-arc'
-    implementation 'io.quarkus:quarkus-jdbc-mariadb'
-    implementation 'io.quarkus:quarkus-rest-jackson'
-    implementation 'io.quarkus:quarkus-flyway'
-    implementation 'io.quarkus:quarkus-smallrye-openapi'
-    implementation 'io.quarkus:quarkus-devui'
-    implementation 'io.quarkus:quarkus-websockets-next'
-    implementation 'io.quarkus:quarkus-websockets-next'
-    implementation 'io.quarkus:quarkus-websockets-next'
+    implementation 'io.quarkus:quarkus-arc'                 // CDI / dependency injection
+    implementation 'io.quarkus:quarkus-jdbc-mariadb'      // MariaDB access
+    implementation 'io.quarkus:quarkus-resteasy'          // JAX-RS (required for ContainerResponseFilter)
+    implementation 'io.quarkus:quarkus-resteasy-jackson'  // JSON support
+    implementation 'io.quarkus:quarkus-flyway'            // Database migrations
+    implementation 'io.quarkus:quarkus-smallrye-openapi'  // OpenAPI / Swagger
+    implementation 'io.quarkus:quarkus-devui'            // Dev UI
+    implementation 'io.quarkus:quarkus-websockets-next'   // WebSockets
 
     // Optional
     implementation 'io.quarkus:quarkus-hibernate-orm'
@@ -69,7 +68,7 @@ jooq {
             generationTool {
                 jdbc {
                     driver = "org.mariadb.jdbc.Driver"
-                    url = "jdbc:mariadb://localhost:3307/skyjo?restrictedAuth=mysql_native_password"
+                    url = "jdbc:mariadb://localhost:3311/skyjo?restrictedAuth=mysql_native_password"
                     user = "${jooqDBuser}"
                     password = "${jooqDBpassword}"
                 }
@@ -108,7 +107,7 @@ tasks.named("compileTestJava") {
 
 // ---------- Flyway ----------
 flyway {
-    url = "jdbc:mariadb://localhost:3307/skyjo"
+    url = "jdbc:mariadb://localhost:3311/skyjo"
     user = "${jooqDBuser}"
     password = "${jooqDBpassword}"
     locations = ["filesystem:src/main/resources/db/migration"]

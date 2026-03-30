@@ -6,7 +6,7 @@ const {
   broadcastToRoom,
 } = require("./privateRoomStore");
 
-const MIN_PLAYERS_TO_START = 2;
+const MIN_PLAYERS_TO_START = 1;
 
 function normalizeRoomCode(input) {
   return (input ?? "").toString().trim();
@@ -77,21 +77,28 @@ async function PrivateStart(ws, payload = {}) {
   let response;
 
   try {
-    response = await axios.post(process.env.SKYJO_LOGIC_ROUTE, arrayOfPlayers);
-    if (response.data.error) {
-      safeSend(ws, {
-        type: "error",
-        error: "SKYJO_SETUP_FAILED",
-        payload: { roomCode },
-      });
-      return;
-    }
-  } catch (err) {
-    safeSend(ws, {
-      type: "error",
-      error: "SKYJO_SETUP_FAILED",
-      payload: { roomCode },
+    console.log("Sende POST an:", process.env.SKYJO_LOGIC_ROUTE);
+    console.log("Daten:", JSON.stringify(arrayOfPlayers));
+
+    response = await axios.post(process.env.SKYJO_LOGIC_ROUTE, arrayOfPlayers, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
     });
+    console.log("Quarkus Response Status:", response.status);
+  } catch (err) {
+    console.error("AXIOS FEHLER DETAILS:");
+    if (err.response) {
+      // Der Server hat mit einem Fehler-Code geantwortet (z.B. 415, 400, 500)
+      console.error("Status:", err.response.status);
+      console.error("Data:", err.response.data);
+    } else {
+      // Es gab ein Netzwerkproblem oder die URL ist falsch
+      console.error("Fehler Nachricht:", err.message);
+    }
+
+    safeSend(ws, { type: "error", error: "SKYJO_SETUP_FAILED" });
     return;
   }
 

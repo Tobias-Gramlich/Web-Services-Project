@@ -20,7 +20,7 @@ public class GameUpsetter {
 
     // Players are authenticated in order to use their ids
     public Game setUpGame(List<Long> players) throws JsonProcessingException {
-        if (players == null || players.size() < 2) {
+        if (players == null || players.size() < 1) {
             throw new IllegalArgumentException("A game requires at least 2 players.");
         }
 

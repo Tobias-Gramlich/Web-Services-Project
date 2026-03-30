@@ -1,11 +1,9 @@
 package skyjo.api;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam; // Import this
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import skyjo.api.dto.GameResponse;
 import skyjo.api.mapper.GameResponseMapper;
 import skyjo.domain.Game;
@@ -22,5 +20,10 @@ public class GetGame {
         Game game = repo.getGameById(Long.valueOf(id));
         // Now you can use the 'id' variable
         return GameResponseMapper.toResponse(game);
+    }
+
+    @OPTIONS
+    public Response options() {
+        return Response.ok().build();
     }
 }

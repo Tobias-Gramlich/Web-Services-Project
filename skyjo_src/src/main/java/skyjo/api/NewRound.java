@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.OPTIONS;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.MediaType;
@@ -30,7 +31,10 @@ public class NewRound {
     GameJooqRepository repository;
     @Inject
     GameUpsetter gameUpsetter;
-
+    @OPTIONS
+    public Response options() {
+        return Response.ok().build();
+    }
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response newRound(RoundCoordinationRequest request) {
