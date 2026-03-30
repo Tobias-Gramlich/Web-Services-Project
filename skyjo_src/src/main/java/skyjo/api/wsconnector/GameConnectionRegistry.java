@@ -72,7 +72,7 @@ public class GameConnectionRegistry {
             LOG.info("Authenticating with token: " + message);
             // Build API Call
             HttpRequest httpRequest = HttpRequest.newBuilder()
-                    .uri(URI.create("http://benutzerverwaltung:3001/Users/auth"))
+                    .uri(URI.create(System.getenv("USER_MANAGEMENT_ROUTE")))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(message))
                     .build();
