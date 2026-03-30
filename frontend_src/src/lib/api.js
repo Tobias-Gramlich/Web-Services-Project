@@ -24,29 +24,29 @@ export const userApi = {
 };
 
 export const colorApi = {
-  getScheme: () => request(`/frontend-api/color/scheme`),
+  getScheme: () => request(`${config.colorApiBase}/scheme`),
   postScheme: (body) => request(`${config.colorApiBase}/scheme`, { method: 'POST', body: JSON.stringify(body) }),
 };
 
 export const skyjoApi = {
-  getGame: (id) => request(`/frontend-api/skyjo/getGame/${id}`, { method: 'GET' }),
+  getGame: (id) => request(`${config.skyjoApiBase}/getGame-${id}`, { method: 'GET' }),
   getCard: (id, token) =>
-    request(`/frontend-api/skyjo/getCard/${id}`, {
+    request(`${config.skyjoApiBase}/getCard/${id}`, {
       method: 'POST',
       body: JSON.stringify({ token }),
     }),
   setUpGame: (playerIds) =>
-    request(`/frontend-api/skyjo/setupGame`, {
+    request(`${config.skyjoApiBase}/setupGame`, {
       method: 'POST',
       body: JSON.stringify(playerIds),
     }),
   move: (body) =>
-    request(`/frontend-api/skyjo/move`, {
+    request(`${config.skyjoApiBase}/move`, {
       method: 'POST',
       body: JSON.stringify(body),
     }),
   coordinateRound: (body) =>
-    request(`/frontend-api/skyjo/round`, {
+    request(`${config.skyjoApiBase}/round`, {
       method: 'POST',
       body: JSON.stringify(body),
     }),
